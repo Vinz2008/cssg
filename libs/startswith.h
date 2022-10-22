@@ -1,0 +1,2 @@
+int startswith(char [], char[]);
+
