@@ -20,5 +20,6 @@ struct config_file {
     struct parameter* parameters;
 };
 
+struct config_file* parse_config_file(char* path);
 
 #endif

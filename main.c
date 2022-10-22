@@ -4,9 +4,11 @@
 #include <errno.h>
 #include "config.h"
 #include "parser.h"
+#include "parser_config.h"
 #include "libs/startswith.h"
 
 int main(int argc, char **argv){
+    struct parameter_file* root_parameter_file =  parse_config_file("cssg.conf");
     char line[150];
     FILE* f = fopen(argv[1], "r");
     FILE* f2 = fopen("index.html", "w");
