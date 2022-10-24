@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -c -g `pkg-config --cflags libmarkdown`
+CFLAGS=-Wall -O2 -c -g `pkg-config --cflags libmarkdown`
 LDFLAGS=`pkg-config --libs libmarkdown`
 
 
