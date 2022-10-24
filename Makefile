@@ -1,13 +1,13 @@
 CC=gcc
-CFLAGS=-Wall -c -g 
+CFLAGS=-Wall -c -g `pkg-config --cflags libmarkdown`
 LDFLAGS=`pkg-config --libs libmarkdown`
 
 
 
 all: cssg
 
-cssg: clean build build/cssg.o build/startswith.o build/removeCharFromString.o build/parser.o build/parser_config.o
-	$(CC) $(LDFLAGS) -o cssg build/cssg.o build/startswith.o build/removeCharFromString.o build/parser.o build/parser_config.o
+cssg: clean build build/cssg.o build/startswith.o build/removeCharFromString.o build/parser.o build/parser_config.o build/markdown_converter.o
+	$(CC) $(LDFLAGS) -o cssg build/cssg.o build/startswith.o build/removeCharFromString.o build/parser.o build/parser_config.o build/markdown_converter.o
 
 build:
 	mkdir build
@@ -28,6 +28,8 @@ build/parser.o:
 build/parser_config.o:
 	$(CC) $(CFLAGS) -o build/parser_config.o parser_config.c
 
+build/markdown_converter.o:
+	$(CC) $(CFLAGS) -o build/markdown_converter.o markdown_converter.c
 
 clean:
 	rm -rf cssg build
