@@ -5,12 +5,15 @@
 #include "config.h"
 #include "parser.h"
 #include "parser_config.h"
+#include "markdown_converter.h"
 #include "libs/startswith.h"
 
 int main(int argc, char **argv){
-    struct parameter_file* root_parameter_file =  parse_config_file("cssg.conf");
+    struct config_file* root_parameter_file =  parse_config_file("cssg.conf");
     char line[150];
-    FILE* f = fopen(argv[1], "r");
+    //FILE* f = fopen(argv[1], "r");
+
+    FILE* f = fopen(templates_directory "[main].html", "r");
     FILE* f2 = fopen("index.html", "w");
     FILE* temp;
     while (fgets(line, 150, f) != NULL){
@@ -44,5 +47,6 @@ int main(int argc, char **argv){
     }
     fclose(f);
     fclose(f2);
+    generate_html_files_recursive("./articles", "./out");
     return 0;
 }

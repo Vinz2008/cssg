@@ -6,8 +6,8 @@ LDFLAGS=`pkg-config --libs libmarkdown`
 
 all: cssg
 
-cssg: clean build build/cssg.o build/startswith.o build/removeCharFromString.o build/parser.o build/parser_config.o build/markdown_converter.o
-	$(CC) $(LDFLAGS) -o cssg build/cssg.o build/startswith.o build/removeCharFromString.o build/parser.o build/parser_config.o build/markdown_converter.o
+cssg: clean build build/cssg.o build/startswith.o build/removeCharFromString.o build/parser.o build/parser_config.o build/markdown_converter.o build/utils_file.o
+	$(CC) $(LDFLAGS) -o cssg build/cssg.o build/startswith.o build/removeCharFromString.o build/parser.o build/parser_config.o build/markdown_converter.o build/utils_file.o
 
 build:
 	mkdir build
@@ -18,6 +18,9 @@ build/cssg.o:
 
 build/startswith.o:
 	$(CC) $(CFLAGS) -o build/startswith.o libs/startswith.c
+
+build/utils_file.o:
+	$(CC) $(CFLAGS) -o build/utils_file.o libs/utils_file.c
 
 build/removeCharFromString.o:
 	$(CC) $(CFLAGS) -o build/removeCharFromString.o libs/removeCharFromString.c
