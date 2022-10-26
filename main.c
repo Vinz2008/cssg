@@ -20,8 +20,12 @@ int main(int argc, char **argv){
     //FILE* f = fopen(argv[1], "r");
     char* main_filename = malloc(50 * sizeof(char));
     snprintf(main_filename, 50, "%s/[main].html", templates_directory);
+    mkdir(temp_directory, 0700);
+    mkdir(out_directory, 0700);
     FILE* f = fopen(main_filename, "r");
-    FILE* f2 = fopen("out/index.html", "w");
+    char* temp_index_path = malloc(50 * sizeof(char));
+    snprintf(temp_index_path, 50, "%s/index.html", out_directory);
+    FILE* f2 = fopen(temp_index_path, "w");
     FILE* temp;
     while (fgets(line, 150, f) != NULL){
         if (startswith("!?CSSG", line)){
@@ -62,7 +66,6 @@ int main(int argc, char **argv){
     }
     fclose(f);
     fclose(f2);
-    mkdir(temp_directory, 0700);
     //generate_html_files_recursive("./articles", "./temp");
     printf("pos : %d\n",find_parameter_pos("articles_directory", root_parameter_file));
     printf("article_directory : %s\n", article_directory);

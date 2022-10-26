@@ -64,35 +64,45 @@ void generate_html_files_recursive(char* article_folder, char* html_folder){
 }
 
 void insert_in_default_template(char* filename, struct config_file* config, char* out_path){
-	char line[150];
+	char line[1024];
 	FILE* out = fopen(out_path, "w");
 	char* default_filename = malloc(50 * sizeof(char));
 	snprintf(default_filename, 50, "%s/[default].html", config->parameters[find_parameter_pos("templates_directory", config)].value_str);
 	FILE* default_file = fopen(default_filename, "r");
 	FILE* in = fopen(filename, "r");
+	FILE* temp;
+	if (in == NULL){
+		printf("could not open file %s\n", filename);
+		exit(1);
+	}
+	if (default_file == NULL){
+		printf("could not open file %s\n", default_filename);
+		exit(1);
+	}
 	printf("content file : %s\n", filename);
 	printf("default file : %s\n", default_filename);
 	printf("out file : %s\n", out_path);
-	while (fgets(line, 150, default_file) != NULL){
+	while (fgets(line, 1024, default_file) != NULL){
 		if (startswith("!?CSSG", line)){
 			struct word* lineList;
             lineList = malloc(30 * sizeof(struct word));
             parse_line(line, lineList);
 			if (strcmp(lineList[1].str, "CONTENT") == 0){
 				printf("CONTENT\n");
-				char line2[150];
-				while (fgets(line2, 150, in) != NULL){
-					fprintf(out, line2);
+				char line2[1024];
+				while (fgets(line2, 1024, in) != NULL){
+					fprintf(out, "%s\n", line2);
 				}
 			} else {
 				char* temp_path = malloc(40 * sizeof(char));
 				snprintf(temp_path, 40, "%s/%s.html", config->parameters[find_parameter_pos("templates_directory", config)].value_str , lineList[1].str);
 				printf("temp_path : %s\n", temp_path);
-				FILE* temp = fopen(temp_path, "r");
-				char line3[150];
+				temp = fopen(temp_path, "r");
+				char line3[1024];
 				printf("TEST\n");
-				while (fgets(line3, 150, temp) != NULL){
-					fprintf(out, line3);
+				while (fgets(line3, 1024, temp) != NULL){
+					printf("line %s : %s\n", temp_path, line3);
+					fprintf(out, "%s\n", line3);
 				}
 				printf("TEST2\n");
 				fclose(temp);
@@ -100,7 +110,7 @@ void insert_in_default_template(char* filename, struct config_file* config, char
 			}
 		} else {
 			printf("line [default] : %s\n", line);
-			fprintf(out, line);
+			fprintf(out, "%s\n", line);
 		}
 	}
 	fclose(in);
