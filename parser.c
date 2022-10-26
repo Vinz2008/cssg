@@ -14,7 +14,6 @@ void parse_line(char* line, struct word* lineList){
     printf("'%s'\n", p);
     lineList[i].str = malloc(20 * sizeof(char));
     strcpy(lineList[i].str, p);
-    printf("TEST\n");
     p = strtok(NULL, " ");
     i++;
     }

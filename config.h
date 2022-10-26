@@ -1,1 +1,0 @@
-#define templates_directory "./templates/"
