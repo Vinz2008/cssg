@@ -41,4 +41,4 @@ clean:
 	rm -rf cssg build temp/* out/*
 
 run:
-	./cssg
+	./cssg build

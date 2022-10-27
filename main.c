@@ -11,11 +11,21 @@
 #include "libs/startswith.h"
 
 int main(int argc, char **argv){
+    if (argc < 2){
+        printf("Usage : \n");
+        printf("build : build project\n");
+        printf("server : run little http server\n");
+        exit(1);
+    }
+    for (int i = 0; i < argc; i++){
+        printf("argv[%d] : %s\n",i, argv[i]);
+    }
     struct config_file* root_parameter_file =  parse_config_file("cssg.conf");
     char* temp_directory = root_parameter_file->parameters[find_parameter_pos("temp_directory", root_parameter_file)].value_str;
     char* article_directory = root_parameter_file->parameters[find_parameter_pos("articles_directory", root_parameter_file)].value_str;
     char* templates_directory = root_parameter_file->parameters[find_parameter_pos("templates_directory", root_parameter_file)].value_str;
     char* out_directory = root_parameter_file->parameters[find_parameter_pos("out_directory", root_parameter_file)].value_str;
+    if (strcmp(argv[1], "build") == 0){
     char line[150];
     //FILE* f = fopen(argv[1], "r");
     char* main_filename = malloc(50 * sizeof(char));
@@ -77,5 +87,9 @@ int main(int argc, char **argv){
     generate_html_files_recursive(article_directory , temp_directory);
     insert_generated_html_in_default_template_recursive(temp_directory, out_directory, root_parameter_file);
     free(main_filename);
+    } else {
+        printf("ERROR : instruction doesn't exist\n");
+        exit(1);
+    }
     return 0;
 }
