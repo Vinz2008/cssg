@@ -153,7 +153,6 @@ void insert_generated_html_in_default_template_recursive(char* temp_folder, char
 				strcat(html_path, ".html");
 				printf("out : %s\n", html_path);
 				insert_in_default_template(path,  config, html_path);
-				convert_markdown_to_html(path, html_path);
 			}
         }
     }

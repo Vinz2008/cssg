@@ -10,5 +10,5 @@ For now, it uses the [discount](http://www.pell.portland.or.us/~orc/Code/discoun
 
 ## TODO
 
-- [ ] move pictures from img folder to out folder
+- [x] move pictures from img folder to out folder
 - [ ] add custom html pages and articles in article folder (find html files and insert templates)

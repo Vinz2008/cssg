@@ -23,7 +23,8 @@ void copy_binary_file(const char* src_path, const char* dest_path){
     fclose(fdest);
 }
 
-void copy_img_files(const char* img_folder){
+void copy_img_files(const char* img_folder, const char* img_out_folder){
+    printf("img_out_folder: %s\n", img_out_folder);
     char path[1000];
 	memset(path, 0, sizeof(path));
     struct dirent *dp;
@@ -47,15 +48,13 @@ void copy_img_files(const char* img_folder){
 				if (stat(temp_html_folder, &st) == -1) {
     			mkdir(temp_html_folder, 0700);
 				}
-            	copy_img_files(path);
+            	copy_img_files(path, img_out_folder);
 			} else {
 				char img_path[1000];
 				memset(img_path, 0, sizeof(img_path));
-				strcpy(img_path, img_folder);
+				strcpy(img_path, img_out_folder);
             	strcat(img_path, "/");
-				printf("file extension removed %s\n", remove_file_extension(dp->d_name));
-				strcat(img_path, remove_file_extension(dp->d_name));
-				strcat(img_path, ".html");
+				strcat(img_path, dp->d_name);
 				printf("out : %s\n", img_path);
                 copy_binary_file(path, img_path);
 				

@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include "parser.h"
+#include "img.h"
 #include "parser_config.h"
 #include "markdown_converter.h"
 #include "libs/startswith.h"
@@ -25,6 +26,7 @@ int main(int argc, char **argv){
     char* article_directory = root_parameter_file->parameters[find_parameter_pos("articles_directory", root_parameter_file)].value_str;
     char* templates_directory = root_parameter_file->parameters[find_parameter_pos("templates_directory", root_parameter_file)].value_str;
     char* out_directory = root_parameter_file->parameters[find_parameter_pos("out_directory", root_parameter_file)].value_str;
+    char* img_directory = root_parameter_file->parameters[find_parameter_pos("img_directory", root_parameter_file)].value_str;
     if (strcmp(argv[1], "build") == 0){
     char line[150];
     //FILE* f = fopen(argv[1], "r");
@@ -86,6 +88,11 @@ int main(int argc, char **argv){
     }
     generate_html_files_recursive(article_directory , temp_directory);
     insert_generated_html_in_default_template_recursive(temp_directory, out_directory, root_parameter_file);
+    char* img_out_directory = malloc(sizeof(char) * 30);
+    snprintf(img_out_directory, 34,"%s/img", out_directory);
+    printf("img_out_directory after created : %s\n", img_out_directory);
+    mkdir(img_out_directory, 0700);
+    copy_img_files(img_directory, img_out_directory);
     free(main_filename);
     } else {
         printf("ERROR : instruction doesn't exist\n");

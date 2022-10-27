@@ -1,0 +1,1 @@
+void copy_img_files(const char* img_folder, const char* img_out_folder);
