@@ -10,6 +10,7 @@ libs/removeCharFromString.o \
 parser.o \
 parser_config.o \
 markdown_converter.o \
+templates.o \
 img.o \
 
 all: clean cssg
