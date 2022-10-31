@@ -16,7 +16,7 @@ img.o \
 all: clean cssg
 
 cssg: $(OBJS)
-	$(CC) $(LDFLAGS) -o cssg $^
+	$(CC) $(LDFLAGS) -o $@ $^
 
 %.o:%.c
 	$(CC) $(CFLAGS) -o $@ $^
