@@ -8,6 +8,41 @@
 #include "parser_config.h"
 #include "libs/startswith.h"
 
+bool for_mode = false;
+
+void extract_variables(FILE* f, char* line){
+    int pos = 0;
+    for (int i = 0; i < strlen(line);i++){
+        if (line[i] == '{' && line[i+1] == '{'){
+            pos = i+2;
+            printf("TEST\n");
+            char* out = malloc(sizeof(char) * 40);
+            int pos2 = pos;
+            for (int j = 0; j < strlen(line); j++){
+            if (line[pos2] == '}' && line[pos2+1] == '}'){
+                break;
+            }
+            out[j] = line[pos2];
+            pos2++;
+            }
+             printf("OUT : %s\n", out);
+            if (strcmp("filename", out) == 0){
+            printf("FILENAME\n");
+            fprintf(f, "FILENAME");
+            pos+=strlen(out)+3;
+            i+=strlen(out)+3;
+            }
+            //break;
+        } else {
+        fputc(line[i], f);
+        }
+        }
+        /*for (int i = pos; i < strlen(line); i++){
+            fputc(line[i], f);
+        }*/
+
+}
+
 void insert_template(const char* html_file, struct config_file* root_parameter_file){
     char* templates_directory = root_parameter_file->parameters[find_parameter_pos("templates_directory", root_parameter_file)].value_str;
     char* temp_directory = root_parameter_file->parameters[find_parameter_pos("temp_directory", root_parameter_file)].value_str;
@@ -24,7 +59,20 @@ void insert_template(const char* html_file, struct config_file* root_parameter_f
     FILE* f2 = fopen(temp_index_path, "w");
     FILE* temp;
     while (fgets(line, 150, f) != NULL){
-        if (startswith("!?CSSG", line)){
+        if(startswith("!?CSSGI", line)){
+            printf("CSSGI\n");
+            struct word* lineList;
+            lineList = malloc(30 * sizeof(struct word));
+            parse_line(line, lineList);
+            if (strcmp("FOR", lineList[1].str)==0){
+                printf("FOR\n");
+                for_mode = true;
+            } else if(strcmp("ENDFOR", lineList[1].str)==0){
+                printf("ENDFOR\n");
+                for_mode = false;
+            }
+            free(lineList);
+        } else if (startswith("!?CSSG", line)){
             struct word* lineList;
             lineList = malloc(30 * sizeof(struct word));
             parse_line(line, lineList);
@@ -55,9 +103,14 @@ void insert_template(const char* html_file, struct config_file* root_parameter_f
             }
             fclose(temp);
             free(lineList);
-
         } else {
+            if (for_mode == true){
+                // pass file and add loop to do the mutiple files
+                extract_variables(f2, line);
+
+            } else {
             fprintf(f2, line);
+            }
         }
     }
     fclose(f);

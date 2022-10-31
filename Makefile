@@ -1,6 +1,6 @@
 CC=gcc
-CFLAGS=-Wall -Wno-sizeof-pointer-memaccess -O2 -c -g `pkg-config --cflags libmarkdown`
-LDFLAGS=`pkg-config --libs libmarkdown`
+CFLAGS=-Wall -Wno-sizeof-pointer-memaccess -O2 -c -g $(shell pkg-config --cflags libmarkdown)
+LDFLAGS=$(shell pkg-config --libs libmarkdown)
 
 OBJS=\
 libs/startswith.o \
