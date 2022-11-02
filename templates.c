@@ -4,13 +4,72 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <dirent.h>
+#include <unistd.h>
 #include "parser.h"
 #include "parser_config.h"
 #include "libs/startswith.h"
+#include "libs/utils_file.h"
 
 bool for_mode = false;
 
-void extract_variables(FILE* f, char* line){
+void init_file_array(struct file_array* File_array, size_t initialSize){
+    File_array->files = malloc(initialSize * sizeof(struct file));
+    File_array->used = 0;
+    File_array->size = initialSize;
+}
+
+void append_file_array(struct file File, struct file_array* File_array){
+    if (File_array->used == File_array->size){
+        File_array->size *= 2;
+        File_array->files = realloc(File_array->files, File_array->size * sizeof(struct parameter));
+    }
+    File_array->files[File_array->used++] = File;
+}
+
+int recurse_nb = 0;
+struct file_array* temp_file_array;
+
+void get_file_array(char* directory){
+    char path[1000];
+	memset(path, 0, sizeof(path));
+    if (recurse_nb == 0){
+        temp_file_array = malloc(sizeof(struct file_array));
+        init_file_array(temp_file_array, 1);
+    }
+    struct dirent *dp;
+    DIR *dir = opendir(directory);
+	if (!dir){
+		return;
+	}
+	 while ((dp = readdir(dir)) != NULL){
+        if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0){
+            printf("name search file array %s\n", dp->d_name);
+            strcpy(path, directory);
+            strcat(path, "/");
+            strcat(path, dp->d_name);
+            printf("path test : %s\n", path);
+			if (is_dir(path)){
+                get_file_array(path);
+			} else {
+                struct file* temp_file = malloc(sizeof(struct file));
+				printf("path for file array : %s\n", path);
+                temp_file->path = path;
+                temp_file->name = remove_file_extension(dp->d_name);
+                append_file_array(*temp_file, temp_file_array);
+                //free(temp_file);
+			}
+            // Construct new path from our base path
+            
+        }
+    }
+    closedir(dir);
+    recurse_nb = 0;
+}
+
+
+
+void extract_variables(FILE* f, char* line, struct file File){
     int pos = 0;
     for (int i = 0; i < strlen(line);i++){
         if (line[i] == '{' && line[i+1] == '{'){
@@ -27,10 +86,10 @@ void extract_variables(FILE* f, char* line){
             }
              printf("OUT : %s\n", out);
             if (strcmp("filename", out) == 0){
-            printf("FILENAME\n");
-            fprintf(f, "FILENAME");
-            pos+=strlen(out)+3;
-            i+=strlen(out)+3;
+                printf("FILENAME\n");
+                fprintf(f, "%s", File.path);
+                pos+=strlen(out) + 3;
+                i+=strlen(out) + 3;
             }
             //break;
         } else {
@@ -40,8 +99,17 @@ void extract_variables(FILE* f, char* line){
         /*for (int i = pos; i < strlen(line); i++){
             fputc(line[i], f);
         }*/
-
 }
+
+
+void extract_variable_files(FILE* f, char* line){
+    get_file_array("./articles");
+    for (int i = 0; i < temp_file_array->used; i++){
+        printf("path file array [%d] : %s\n", i, temp_file_array->files[i].path);
+        extract_variables(f, line, temp_file_array->files[i]);
+    }
+}
+
 
 void insert_template(const char* html_file, struct config_file* root_parameter_file){
     char* templates_directory = root_parameter_file->parameters[find_parameter_pos("templates_directory", root_parameter_file)].value_str;
@@ -106,7 +174,7 @@ void insert_template(const char* html_file, struct config_file* root_parameter_f
         } else {
             if (for_mode == true){
                 // pass file and add loop to do the mutiple files
-                extract_variables(f2, line);
+                extract_variable_files(f2, line);
 
             } else {
             fprintf(f2, line);
