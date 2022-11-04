@@ -13,6 +13,7 @@
 
 bool for_mode = false;
 
+
 void init_file_array(struct file_array* File_array, size_t initialSize){
     File_array->files = malloc(initialSize * sizeof(struct file));
     File_array->used = 0;
@@ -27,8 +28,32 @@ void append_file_array(struct file File, struct file_array* File_array){
     File_array->files[File_array->used++] = File;
 }
 
+
+void init_line_array(struct line_array* Line_array, size_t initialSize){
+    printf("initialSize : %ld\n", initialSize);
+    Line_array->lines = malloc(initialSize * sizeof(struct line));
+    printf("TEST\n");
+    Line_array->used = 0;
+    Line_array->size = initialSize;
+}
+
+void append_line_array(struct line Line, struct line_array* Line_array){
+    if (Line_array->used == Line_array->size){
+        Line_array->size *= 2;
+        Line_array->lines = realloc(Line_array->lines, Line_array->size * sizeof(struct line));
+    }
+    Line_array->lines[Line_array->used++] = Line;
+}
+
+void empty_line_array(struct line_array* Line_array){
+    free(Line_array->lines);
+    Line_array->lines = NULL;
+    Line_array->used = Line_array->size = 0;
+}
+
 int recurse_nb = 0;
 struct file_array* temp_file_array;
+struct line_array* Line_array;
 
 void get_file_array(char* directory){
     char path[1000];
@@ -57,6 +82,7 @@ void get_file_array(char* directory){
                 temp_file->path = path;
                 temp_file->name = remove_file_extension(dp->d_name);
                 append_file_array(*temp_file, temp_file_array);
+                printf("path after appending : %s\n", temp_file_array->files[temp_file_array->used - 1].path);
                 //free(temp_file);
 			}
             // Construct new path from our base path
@@ -102,11 +128,14 @@ void extract_variables(FILE* f, char* line, struct file File){
 }
 
 
-void extract_variable_files(FILE* f, char* line){
+void extract_variable_files(FILE* f, struct line_array* larray){
     get_file_array("./articles");
     for (int i = 0; i < temp_file_array->used; i++){
         printf("path file array [%d] : %s\n", i, temp_file_array->files[i].path);
-        extract_variables(f, line, temp_file_array->files[i]);
+        for (int j = 0; j < larray->used; j++){
+            printf("line in loop : %s\n", larray->lines[j].line);
+            extract_variables(f, larray->lines[j].line, temp_file_array->files[i]);
+        }
     }
 }
 
@@ -135,9 +164,13 @@ void insert_template(const char* html_file, struct config_file* root_parameter_f
             if (strcmp("FOR", lineList[1].str)==0){
                 printf("FOR\n");
                 for_mode = true;
+                Line_array = malloc(sizeof(struct line_array));
+                init_line_array(Line_array, 1);
             } else if(strcmp("ENDFOR", lineList[1].str)==0){
                 printf("ENDFOR\n");
                 for_mode = false;
+                extract_variable_files(f2, Line_array);
+                empty_line_array(Line_array);
             }
             free(lineList);
         } else if (startswith("!?CSSG", line)){
@@ -174,7 +207,15 @@ void insert_template(const char* html_file, struct config_file* root_parameter_f
         } else {
             if (for_mode == true){
                 // pass file and add loop to do the mutiple files
-                extract_variable_files(f2, line);
+                //extract_variable_files(f2, line);
+                struct line temp_line;
+                //temp_line.line = malloc(strlen(line) * sizeof(char));
+                //temp_line.line = line;
+                strcpy(temp_line.line, line);
+                printf("line after strcpy : %s\n", temp_line.line);
+                printf("added line : %s\n", line);
+                append_line_array(temp_line, Line_array);
+                printf("line after added : %s\n", Line_array->lines[Line_array->used - 1].line);
 
             } else {
             fprintf(f2, line);
