@@ -38,6 +38,7 @@ int main(int argc, char **argv){
         printf("ERROR : directory %s doesn't exist\n", article_directory);
         exit(1);
     }
+    closedir(dir);
     generate_html_files_recursive(article_directory , temp_directory);
     insert_generated_html_in_default_template_recursive(temp_directory, out_directory, root_parameter_file);
     char* img_out_directory = malloc(sizeof(char) * 30);
@@ -45,11 +46,14 @@ int main(int argc, char **argv){
     printf("img_out_directory after created : %s\n", img_out_directory);
     mkdir(img_out_directory, 0700);
     copy_img_files(img_directory, img_out_directory);
+    free(img_out_directory);
     } else if (strcmp(argv[1], "clean") == 0){
         clean(root_parameter_file);
     } else {
         printf("ERROR : instruction doesn't exist\n");
         exit(1);
     }
+    empty_config_list(root_parameter_file);
+    free(root_parameter_file);
     return 0;
 }

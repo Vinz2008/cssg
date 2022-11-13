@@ -95,7 +95,9 @@ void get_file_array(char* directory, char* html_folder){
 				memset(html_path, 0, sizeof(html_path));
 				strcpy(html_path, html_folder);
             	strcat(html_path, "/");
-				strcat(html_path, remove_file_extension(dp->d_name));
+                char* temp = remove_file_extension(dp->d_name);
+				strcat(html_path, temp);
+                free(temp);
 				strcat(html_path, ".html");
                 printf("html path for file array : %s\n", html_path);
                 temp_file->path = html_path;
@@ -104,6 +106,7 @@ void get_file_array(char* directory, char* html_folder){
                 append_file_array(*temp_file, temp_file_array);
                 printf("path after appending : %s\n", temp_file_array->files[temp_file_array->used - 1].path);
                 printf("temp_file_array->used : %ld\n", temp_file_array->used);
+                free(temp_file->path);
                 free(temp_file);
 			}
             // Construct new path from our base path
@@ -153,6 +156,7 @@ void extract_variables(FILE* f, char* line, struct file File){
                 pos+=strlen(out) + 3;
                 i+=strlen(out) + 3;
             }
+            free(out);
             //break;
         } else {
         fputc(line[i], f);
@@ -191,6 +195,7 @@ void insert_template(const char* html_file, struct config_file* root_parameter_f
     char* temp_index_path = malloc(50 * sizeof(char));
     snprintf(temp_index_path, 50, "%s/%s", out_directory, html_file);
     FILE* f2 = fopen(temp_index_path, "w");
+    free(temp_index_path);
     FILE* temp;
     while (fgets(line, 150, f) != NULL){
         if(startswith("!?CSSGI", line)){

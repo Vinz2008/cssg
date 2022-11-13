@@ -52,8 +52,10 @@ void generate_html_files_recursive(char* article_folder, char* html_folder){
 				memset(html_path, 0, sizeof(html_path));
 				strcpy(html_path, html_folder);
             	strcat(html_path, "/");
-				printf("file extension removed %s\n", remove_file_extension(dp->d_name));
-				strcat(html_path, remove_file_extension(dp->d_name));
+				char* name_extension_removed = remove_file_extension(dp->d_name);
+				printf("file extension removed %s\n", name_extension_removed);
+				strcat(html_path, name_extension_removed);
+				free(name_extension_removed);
 				strcat(html_path, ".html");
 				printf("out : %s\n", html_path);
 				convert_markdown_to_html(path, html_path);
@@ -79,12 +81,13 @@ void insert_in_default_template(char* filename, struct config_file* config, char
 		printf("could not open file %s\n", default_filename);
 		exit(1);
 	}
+	struct word* lineList;
 	printf("content file : %s\n", filename);
 	printf("default file : %s\n", default_filename);
+	free(default_filename);
 	printf("out file : %s\n", out_path);
 	while (fgets(line, 1024, default_file) != NULL){
 		if (startswith("!?CSSG", line)){
-			struct word* lineList;
             lineList = malloc(30 * sizeof(struct word));
             parse_line(line, lineList);
 			if (strcmp(lineList[1].str, "CONTENT") == 0){
@@ -108,6 +111,7 @@ void insert_in_default_template(char* filename, struct config_file* config, char
 				fclose(temp);
 				free(temp_path);
 			}
+			free(lineList);
 		} else {
 			printf("line [default] : %s\n", line);
 			fprintf(out, "%s\n", line);
@@ -116,6 +120,7 @@ void insert_in_default_template(char* filename, struct config_file* config, char
 	fclose(in);
 	fclose(default_file);
 	fclose(out);
+
 }
 
 void insert_generated_html_in_default_template_recursive(char* temp_folder, char* html_folder, struct config_file* config){
@@ -148,8 +153,10 @@ void insert_generated_html_in_default_template_recursive(char* temp_folder, char
 				memset(html_path, 0, sizeof(html_path));
 				strcpy(html_path, html_folder);
             	strcat(html_path, "/");
-				printf("file extension removed %s\n", remove_file_extension(dp->d_name));
-				strcat(html_path, remove_file_extension(dp->d_name));
+				char* name_extension_removed = remove_file_extension(dp->d_name);
+				printf("file extension removed %s\n", name_extension_removed);
+				strcat(html_path, name_extension_removed);
+				free(name_extension_removed);
 				strcat(html_path, ".html");
 				printf("out : %s\n", html_path);
 				insert_in_default_template(path,  config, html_path);

@@ -35,6 +35,12 @@ void append_parameter_config_list(struct parameter param, struct config_file* co
     config->parameters[config->used++] = param;
 }
 
+void empty_config_list(struct config_file* config){
+    free(config->parameters);
+    config->parameters = NULL;
+    config->used = config->size = 0;
+}
+
 struct parameter* parse_config_line(char* line){
     removeCharFromString('\n', line);
     struct parameter* parameter_ptr = malloc(sizeof(struct parameter));
@@ -56,7 +62,6 @@ struct parameter* parse_config_line(char* line){
         }
     }
     parameter_ptr->name = name;
-    parameter_ptr->type = STRING;
     parameter_ptr->value_str = value;
     return parameter_ptr;
 }
@@ -70,7 +75,9 @@ struct config_file* parse_config_file(char* path){
     while (fgets(line, 100, f) != NULL){
         struct parameter* temp_param = parse_config_line(line);
         append_parameter_config_list(*temp_param, config_file_ptr);
+        free(temp_param);
     }
     fclose(f);
+    free(line);
     return config_file_ptr;
 }
