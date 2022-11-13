@@ -10,6 +10,7 @@
 #include "templates.h"
 #include "parser_config.h"
 #include "markdown_converter.h"
+#include "misc.h"
 #include "libs/startswith.h"
 
 int main(int argc, char **argv){
@@ -44,6 +45,8 @@ int main(int argc, char **argv){
     printf("img_out_directory after created : %s\n", img_out_directory);
     mkdir(img_out_directory, 0700);
     copy_img_files(img_directory, img_out_directory);
+    } else if (strcmp(argv[1], "clean") == 0){
+        clean(root_parameter_file);
     } else {
         printf("ERROR : instruction doesn't exist\n");
         exit(1);

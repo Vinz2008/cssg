@@ -12,6 +12,7 @@ parser_config.o \
 markdown_converter.o \
 templates.o \
 img.o \
+misc.o \
 
 all: clean cssg
 

@@ -164,8 +164,8 @@ void extract_variables(FILE* f, char* line, struct file File){
 }
 
 
-void extract_variable_files(FILE* f, struct line_array* larray){
-    get_file_array("./articles", ".");
+void extract_variable_files(FILE* f, struct line_array* larray, struct config_file* root_parameter_file){
+    get_file_array(root_parameter_file->parameters[find_parameter_pos("articles_directory", root_parameter_file)].value_str, ".");
     log_file_array("log.txt");
     for (int i = 0; i < temp_file_array->used; i++){
         printf("path file array [%d] : %s\n", i, temp_file_array->files[i].path);
@@ -206,7 +206,7 @@ void insert_template(const char* html_file, struct config_file* root_parameter_f
             } else if(strcmp("ENDFOR", lineList[1].str)==0){
                 printf("ENDFOR\n");
                 for_mode = false;
-                extract_variable_files(f2, Line_array);
+                extract_variable_files(f2, Line_array, root_parameter_file);
                 empty_line_array(Line_array);
             }
             free(lineList);
