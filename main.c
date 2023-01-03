@@ -17,6 +17,7 @@ int main(int argc, char **argv){
     if (argc < 2){
         printf("Usage : \n");
         printf("build : build project\n");
+        printf("clean : clean project\n");
         exit(1);
     }
     for (int i = 0; i < argc; i++){
@@ -28,11 +29,16 @@ int main(int argc, char **argv){
     char* templates_directory = root_parameter_file->parameters[find_parameter_pos("templates_directory", root_parameter_file)].value_str;
     char* out_directory = root_parameter_file->parameters[find_parameter_pos("out_directory", root_parameter_file)].value_str;
     char* img_directory = root_parameter_file->parameters[find_parameter_pos("img_directory", root_parameter_file)].value_str;
+    config_t* config = malloc(sizeof(config_t));
+    config->articles_directory = article_directory;
+    config->img_directory = img_directory;
+    config->out_directory = out_directory;
+    config->temp_directory = temp_directory;
+    config->templates_directory = templates_directory;
     if (strcmp(argv[1], "build") == 0){
-    insert_template("index.html", root_parameter_file);
+    insert_template("index.html", config);
     //generate_html_files_recursive("./articles", "./temp");
-    printf("pos : %d\n",find_parameter_pos("articles_directory", root_parameter_file));
-    printf("article_directory : %s\n", article_directory);
+    printf("article_directory : %s\n", config->articles_directory);
     DIR* dir = opendir(article_directory);
     if (!dir && ENOENT == errno) {
         printf("ERROR : directory %s doesn't exist\n", article_directory);
@@ -55,5 +61,6 @@ int main(int argc, char **argv){
     }
     empty_config_list(root_parameter_file);
     free(root_parameter_file);
+    free(config);
     return 0;
 }

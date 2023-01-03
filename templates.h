@@ -26,4 +26,4 @@ struct file {
     char* name;
 };
 
-void insert_template(const char* html_file, struct config_file* root_parameter_file);
+void insert_template(const char* html_file, config_t* config);
