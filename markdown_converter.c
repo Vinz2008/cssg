@@ -15,8 +15,9 @@
 void convert_markdown_to_html(char* md_path, char* html_path){
 	FILE* in = fopen(md_path, "r");
 	FILE* out = fopen(html_path, "w");
-	MMIOT* mmiot = mkd_in(in, MKD_LATEX);
-	markdown(mmiot, out, MKD_LATEX);
+	int flags = MKD_LATEX | MKD_FENCEDCODE | MKD_AUTOLINK;
+	MMIOT* mmiot = mkd_in(in, flags);
+	markdown(mmiot, out, flags);
 	fclose(in);
 	fclose(out);
 }
