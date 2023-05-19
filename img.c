@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <string.h>
 #include "libs/utils_file.h"
+#include "misc.h"
 
 void copy_binary_file(const char* src_path, const char* dest_path){
     FILE* fsrc = fopen(src_path, "rb");
@@ -33,17 +34,14 @@ void copy_img_files(const char* img_folder, const char* img_out_folder){
 		return;
 	}
 	 while ((dp = readdir(dir)) != NULL){
-        if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0){
-            printf("%s\n", dp->d_name);
+        char* folder = dp->d_name;
+        if (strcmp(folder, ".") != 0 && strcmp(folder, "..") != 0){
+            printf("%s\n", folder);
             // Construct new path from our base path
-            strcpy(path, img_folder);
-            strcat(path, "/");
-            strcat(path, dp->d_name);
+            go_to_folder(folder, img_folder, path);
 			if (is_dir(path)){
 				char temp_html_folder[1000];
-				strcpy(temp_html_folder, img_folder);
-            	strcat(temp_html_folder, "/");
-            	strcat(temp_html_folder, dp->d_name);
+                go_to_folder(folder,img_folder,temp_html_folder);
 				struct stat st = {0};
 				if (stat(temp_html_folder, &st) == -1) {
     			mkdir(temp_html_folder, 0700);
@@ -52,9 +50,7 @@ void copy_img_files(const char* img_folder, const char* img_out_folder){
 			} else {
 				char img_path[1000];
 				memset(img_path, 0, sizeof(img_path));
-				strcpy(img_path, img_out_folder);
-            	strcat(img_path, "/");
-				strcat(img_path, dp->d_name);
+                go_to_folder(folder,img_out_folder,img_path);
 				printf("out : %s\n", img_path);
                 copy_binary_file(path, img_path);
 				

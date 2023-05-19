@@ -11,8 +11,10 @@
 #include "parser.h"
 #include "libs/utils_file.h"
 #include "libs/startswith.h"
+#include "misc.h"
 
 void convert_markdown_to_html(char* md_path, char* html_path){
+	printf("in path convert to markdown : %s\n", md_path);
 	FILE* in = fopen(md_path, "r");
 	FILE* out = fopen(html_path, "w");
 	int flags = MKD_LATEX | MKD_FENCEDCODE | MKD_AUTOLINK;
@@ -32,17 +34,14 @@ void generate_html_files_recursive(char* article_folder, char* html_folder){
 		return;
 	}
 	 while ((dp = readdir(dir)) != NULL){
-        if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0){
-            printf("%s\n", dp->d_name);
+		char* folder = dp->d_name;
+        if (strcmp(folder, ".") != 0 && strcmp(folder, "..") != 0){
+            printf("%s\n", folder);
             // Construct new path from our base path
-            strcpy(path, article_folder);
-            strcat(path, "/");
-            strcat(path, dp->d_name);
+			go_to_folder(folder, article_folder, path);
 			if (is_dir(path)){
 				char temp_html_folder[1000];
-				strcpy(temp_html_folder, html_folder);
-            	strcat(temp_html_folder, "/");
-            	strcat(temp_html_folder, dp->d_name);
+				go_to_folder(folder, html_folder, temp_html_folder);
 				struct stat st = {0};
 				if (stat(temp_html_folder, &st) == -1) {
     			mkdir(temp_html_folder, 0700);
@@ -51,14 +50,13 @@ void generate_html_files_recursive(char* article_folder, char* html_folder){
 			} else {
 				char html_path[1000];
 				memset(html_path, 0, sizeof(html_path));
-				strcpy(html_path, html_folder);
-            	strcat(html_path, "/");
-				char* name_extension_removed = remove_file_extension(dp->d_name);
+				char* name_extension_removed = remove_file_extension(folder);
 				printf("file extension removed %s\n", name_extension_removed);
-				strcat(html_path, name_extension_removed);
+				go_to_folder(name_extension_removed, html_folder, html_path);
 				free(name_extension_removed);
 				strcat(html_path, ".html");
 				printf("out : %s\n", html_path);
+				printf("in : %s\n", path);
 				convert_markdown_to_html(path, html_path);
 			}
         }
@@ -133,34 +131,29 @@ void insert_generated_html_in_default_template_recursive(char* temp_folder, char
 		return;
 	}
 	 while ((dp = readdir(dir)) != NULL){
-        if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0){
-            printf("%s\n", dp->d_name);
+		char* folder = dp->d_name;
+        if (strcmp(folder, ".") != 0 && strcmp(folder, "..") != 0){
+            printf("%s\n", folder);
             // Construct new path from our base path
-            strcpy(path, temp_folder);
-            strcat(path, "/");
-            strcat(path, dp->d_name);
+			go_to_folder(folder, temp_folder, path);
 			if (is_dir(path)){
 				char temp_html_folder[1000];
-				strcpy(temp_html_folder, html_folder);
-            	strcat(temp_html_folder, "/");
-            	strcat(temp_html_folder, dp->d_name);
+				go_to_folder(folder, html_folder, temp_html_folder);
 				struct stat st = {0};
 				if (stat(temp_html_folder, &st) == -1) {
     			mkdir(temp_html_folder, 0700);
 				}
             	insert_generated_html_in_default_template_recursive(path ,temp_html_folder, config);
 			} else {
+				char* name_extension_removed = remove_file_extension(folder);
+				printf("file extension removed %s\n", name_extension_removed);
 				char html_path[1000];
 				memset(html_path, 0, sizeof(html_path));
-				strcpy(html_path, html_folder);
-            	strcat(html_path, "/");
-				char* name_extension_removed = remove_file_extension(dp->d_name);
-				printf("file extension removed %s\n", name_extension_removed);
-				strcat(html_path, name_extension_removed);
-				free(name_extension_removed);
+				go_to_folder(name_extension_removed, html_folder, html_path);
 				strcat(html_path, ".html");
 				printf("out : %s\n", html_path);
 				insert_in_default_template(path,  config, html_path);
+				free(name_extension_removed);
 			}
         }
     }

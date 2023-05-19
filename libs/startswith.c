@@ -7,21 +7,17 @@ int startswith(char strStartingWith[], char code[]) {
     int length = strlen(strStartingWith);
     /*printf("length : %i\n", length);*/
     int i;
-    for (i = 0; i < length/*-1*/; i++)
-    {
-        if (strStartingWith[i] == code[i])
-        {
+    for (i = 0; i < length/*-1*/; i++){
+        if (strStartingWith[i] == code[i]){
             similarity++;
         }
     }
     /*similarity++;*/
     /*printf("similarity %i\n", similarity);*/
-    if (similarity >= length)
-    {
+    if (similarity >= length){
         return 1;
     }
-    else
-    {
+    else {
         return 0;
     }
 }

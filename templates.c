@@ -10,6 +10,7 @@
 #include "parser_config.h"
 #include "libs/startswith.h"
 #include "libs/utils_file.h"
+#include "misc.h"
 
 bool for_mode = false;
 
@@ -55,6 +56,7 @@ int recurse_nb = 0;
 struct file_array* temp_file_array;
 struct line_array* Line_array;
 
+
 void get_file_array(char* directory, char* html_folder){
     char path[1000];
 	memset(path, 0, sizeof(path));
@@ -69,18 +71,15 @@ void get_file_array(char* directory, char* html_folder){
 		return;
 	}
 	 while ((dp = readdir(dir)) != NULL){
-        if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0){
-            printf("file array search file %s\n", dp->d_name);
-            strcpy(path, directory);
-            strcat(path, "/");
-            strcat(path, dp->d_name);
+        char* folder = dp->d_name;
+        if (strcmp(folder, ".") != 0 && strcmp(folder, "..") != 0){
+            printf("file array search file %s\n", folder);
+            go_to_folder(folder, directory, path);
             printf("path test : %s\n", path);
 			if (is_dir(path)){
                 char temp_html_folder[1000];
-                strcpy(temp_html_folder, html_folder);
-                strcat(temp_html_folder, "/");
-                strcat(temp_html_folder, dp->d_name);
-                printf("name search file array %s\n", dp->d_name);
+                go_to_folder(folder, html_folder, temp_html_folder);
+                printf("name search file array %s\n", folder);
                 printf("temp_file_array->used : %ld\n", temp_file_array->used);
                 struct stat st = {0};
 				if (stat(temp_html_folder, &st) == -1) {
@@ -91,17 +90,15 @@ void get_file_array(char* directory, char* html_folder){
 			} else {
                 struct file* temp_file = malloc(sizeof(struct file));
 				printf("path for file array : %s\n", path);
+                char* temp = remove_file_extension(folder);
                 char* html_path = malloc(sizeof(char) * 1000);
 				memset(html_path, 0, sizeof(html_path));
-				strcpy(html_path, html_folder);
-            	strcat(html_path, "/");
-                char* temp = remove_file_extension(dp->d_name);
-				strcat(html_path, temp);
+                go_to_folder(temp, html_folder, html_path);
                 free(temp);
 				strcat(html_path, ".html");
                 printf("html path for file array : %s\n", html_path);
                 temp_file->path = html_path;
-                temp_file->name = remove_file_extension(dp->d_name);
+                temp_file->name = remove_file_extension(folder);
                 printf("temp_file_array->used before appending : %ld\n", temp_file_array->used);
                 append_file_array(*temp_file, temp_file_array);
                 printf("path after appending : %s\n", temp_file_array->files[temp_file_array->used - 1].path);

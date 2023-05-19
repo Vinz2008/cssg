@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <ftw.h>
 #include <unistd.h>
+#include <string.h>
 #include "parser_config.h"
 
 
@@ -19,4 +20,10 @@ int rmrf(char *path){
 void clean(struct config_file* config){
     rmrf(config->parameters[find_parameter_pos("out_directory", config)].value_str);
     rmrf(config->parameters[find_parameter_pos("temp_directory", config)].value_str);
+}
+
+void go_to_folder(char* folder, char* path, char* out){
+    strcpy(out, path);
+    strcat(out, "/");
+    strcat(out, folder);
 }
