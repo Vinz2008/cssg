@@ -99,7 +99,7 @@ void get_file_array(char* directory, char* html_folder){
                 append_file_array(*temp_file, temp_file_array);
                 printf("path after appending : %s\n", temp_file_array->files[temp_file_array->used - 1].path);
                 printf("temp_file_array->used : %ld\n", temp_file_array->used);
-                free(temp_file->path);
+                //free(temp_file->path);
                 free(temp_file);
 			}
             // Construct new path from our base path
