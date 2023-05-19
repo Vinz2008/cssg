@@ -17,13 +17,18 @@ void error_webserver(const char s){
 
 char* get_file_content(char* filename){ 
     FILE* f = fopen(filename, "r");
+    if (f == NULL || fseek(f, 0, SEEK_END)) {
+        return NULL;
+    }
     long length = ftell(f);
+    rewind(f);
     printf("length : %d\n");
     fclose(f);
     return "HTTP/1.0 200 OK\r\n hello world\r\n";
 }
 
 void webserver(char* folder){
+    get_file_content("main.c");
     char listenbuff[BUFFER_SIZE];
     char* resp = "HTTP/1.0 200 OK\r\n"
 "Server: webserver-c\r\n"
