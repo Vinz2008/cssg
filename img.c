@@ -2,7 +2,6 @@
 #include <stdbool.h>
 #include <dirent.h>
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <unistd.h>
 #include <string.h>
 #include "libs/utils_file.h"
@@ -42,10 +41,7 @@ void copy_img_files(const char* img_folder, const char* img_out_folder){
 			if (is_dir(path)){
 				char temp_html_folder[1000];
                 go_to_folder(folder,img_folder,temp_html_folder);
-				struct stat st = {0};
-				if (stat(temp_html_folder, &st) == -1) {
-    			mkdir(temp_html_folder, 0700);
-				}
+                mkdir_if_not_exist(temp_html_folder);
             	copy_img_files(path, img_out_folder);
 			} else {
 				char img_path[1000];

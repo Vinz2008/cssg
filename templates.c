@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <sys/stat.h>
 #include <dirent.h>
 #include <unistd.h>
 #include "parser.h"
@@ -81,10 +80,7 @@ void get_file_array(char* directory, char* html_folder){
                 go_to_folder(folder, html_folder, temp_html_folder);
                 printf("name search file array %s\n", folder);
                 printf("temp_file_array->used : %ld\n", temp_file_array->used);
-                struct stat st = {0};
-				if (stat(temp_html_folder, &st) == -1) {
-    			mkdir(temp_html_folder, 0700);
-				}
+                mkdir_if_not_exist(temp_html_folder);
                 recurse_nb++;
                 get_file_array(path, temp_html_folder);
 			} else {

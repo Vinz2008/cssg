@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <dirent.h>
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <unistd.h>
 #include "parser_config.h"
 #include "parser.h"
@@ -42,10 +41,7 @@ void generate_html_files_recursive(char* article_folder, char* html_folder){
 			if (is_dir(path)){
 				char temp_html_folder[1000];
 				go_to_folder(folder, html_folder, temp_html_folder);
-				struct stat st = {0};
-				if (stat(temp_html_folder, &st) == -1) {
-    			mkdir(temp_html_folder, 0700);
-				}
+				mkdir_if_not_exist(temp_html_folder);
             	generate_html_files_recursive(path, temp_html_folder);
 			} else {
 				char html_path[1000];
@@ -139,10 +135,7 @@ void insert_generated_html_in_default_template_recursive(char* temp_folder, char
 			if (is_dir(path)){
 				char temp_html_folder[1000];
 				go_to_folder(folder, html_folder, temp_html_folder);
-				struct stat st = {0};
-				if (stat(temp_html_folder, &st) == -1) {
-    			mkdir(temp_html_folder, 0700);
-				}
+				mkdir_if_not_exist(temp_html_folder);
             	insert_generated_html_in_default_template_recursive(path ,temp_html_folder, config);
 			} else {
 				char* name_extension_removed = remove_file_extension(folder);

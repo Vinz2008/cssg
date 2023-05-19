@@ -3,6 +3,7 @@
 #include <ftw.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/stat.h>
 #include "parser_config.h"
 
 
@@ -26,4 +27,11 @@ void go_to_folder(char* folder, char* path, char* out){
     strcpy(out, path);
     strcat(out, "/");
     strcat(out, folder);
+}
+
+void mkdir_if_not_exist(char* path){
+    struct stat st = {0};
+    if (stat(path, &st) == -1){
+        mkdir(path, 0700);
+    }
 }
