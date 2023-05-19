@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <dirent.h>
+#include <sys/stat.h>
 #include "parser.h"
 #include "img.h"
 #include "templates.h"
@@ -11,13 +12,15 @@
 #include "markdown_converter.h"
 #include "misc.h"
 #include "libs/startswith.h"
+#include "webserver/webserver.h"
 
 int main(int argc, char **argv){
     if (argc < 2){
         printf("Usage : \n");
         printf("build : build project\n");
         printf("clean : clean project\n");
-        exit(1);
+        printf("server : server project\n");
+        exit(0);
     }
     for (int i = 0; i < argc; i++){
         printf("argv[%d] : %s\n",i, argv[i]);
@@ -54,6 +57,14 @@ int main(int argc, char **argv){
     free(img_out_directory);
     } else if (strcmp(argv[1], "clean") == 0){
         clean(root_parameter_file);
+    } else if (strcmp(argv[1], "serve") == 0){
+        char* folder;
+        if (argc < 3){
+            folder = ".";
+        } else {
+            folder = argv[2];
+        }
+        webserver(folder);
     } else {
         printf("ERROR : instruction doesn't exist\n");
         exit(1);

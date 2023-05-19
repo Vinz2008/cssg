@@ -2,17 +2,10 @@ CC = gcc
 CFLAGS=-Wall -Wno-sizeof-pointer-memaccess -O2 -c -g $(shell pkg-config --cflags libmarkdown)
 LDFLAGS=$(shell pkg-config --libs libmarkdown)
 
-OBJS=\
-libs/startswith.o \
-main.o \
-libs/utils_file.o \
-libs/removeCharFromString.o \
-parser.o \
-parser_config.o \
-markdown_converter.o \
-templates.o \
-img.o \
-misc.o \
+
+
+SRCS := $(wildcard ./*.c) $(wildcard libs/*.c) $(wildcard webserver/*.c)
+OBJS = $(patsubst %.c,%.o,$(SRCS))
 
 all: clean cssg
 
@@ -23,7 +16,7 @@ cssg: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^
 
 clean:
-	rm -rf cssg ./*.o ./libs/*.o temp/* out/*
+	rm -rf cssg ./*.o ./libs/*.o temp/* out/* ./webserver/*.o
 
 run:
 	./cssg build
