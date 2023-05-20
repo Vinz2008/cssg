@@ -13,8 +13,9 @@
 #define PORT 8084
 #define BUFFER_SIZE 3000
 
-void error_webserver(const char s){
-    fprintf(stdout, "(webserver) %s\n errno : %s\n", strerror(errno)); 
+void error_webserver(const char* s){
+    fprintf(stdout, "(webserver) %s\n errno : %s\n", s, strerror(errno));
+    exit(1);
 }
 
 char* get_file_content(char* filename){
@@ -76,7 +77,8 @@ void webserver(char* folder){
     printf("server listening for connections\n");
     printf("waiting on port %d\n", PORT);
     for (;;){
-         char* buffer = get_file_content(startFile);
+        char* buffer = get_file_content(startFile);
+        printf("got file content\n");
         connectionfd = accept(sockfd, NULL, NULL);
         memset(listenbuff, 0, BUFFER_SIZE);
         read( connectionfd , listenbuff, BUFFER_SIZE);
