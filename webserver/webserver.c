@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <fcntl.h>
+#include <stdlib.h>
 #include <assert.h>
 
 #define PORT 8084
@@ -15,20 +16,32 @@ void error_webserver(const char s){
     fprintf(stdout, "(webserver) %s\n errno : %s\n", strerror(errno)); 
 }
 
-char* get_file_content(char* filename){ 
+char* get_file_content(char* filename){
+    char* buffer;
     FILE* f = fopen(filename, "r");
     if (f == NULL || fseek(f, 0, SEEK_END)) {
+        error_webserver("file doesn't exist\n");
         return NULL;
     }
     long length = ftell(f);
     rewind(f);
     printf("length : %d\n");
+    char* http_header = "HTTP/1.0 200 OK\nServer: webserver-c\nContent-type: text/html\n\n";
+    buffer = malloc(sizeof(char) * (length + strlen(http_header) + 1));
+    strcpy(buffer, http_header);
+    int n = strlen(http_header);
+    char c;
+    while ((c = fgetc(f)) != EOF)
+    {
+        buffer[n++] = (char) c;
+    }
+    buffer[n] = '\0';
     fclose(f);
-    return "HTTP/1.0 200 OK\r\n hello world\r\n";
+    return buffer;
+    //return "HTTP/1.0 200 OK\r\n hello world\r\n";
 }
 
 void webserver(char* folder){
-    get_file_content("main.c");
     char listenbuff[BUFFER_SIZE];
     char* resp = "HTTP/1.0 200 OK\r\n"
 "Server: webserver-c\r\n"
@@ -59,12 +72,13 @@ void webserver(char* folder){
     printf("server listening for connections\n");
     printf("waiting on port %d\n", PORT);
     for (;;){
+         char* buffer = get_file_content("out/index.html");
         connectionfd = accept(sockfd, NULL, NULL);
         memset(listenbuff, 0, BUFFER_SIZE);
         read( connectionfd , listenbuff, BUFFER_SIZE);
         printf("buf : %s\n", listenbuff);
         //resp = get_file_content("out/index.html");
-        write(connectionfd, resp, strlen(resp));
+        write(connectionfd, buffer, strlen(buffer));
         close(connectionfd);
     }
 }
