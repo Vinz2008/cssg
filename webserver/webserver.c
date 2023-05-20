@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "../misc.h"
 
 #define PORT 8084
 #define BUFFER_SIZE 3000
@@ -42,6 +43,9 @@ char* get_file_content(char* filename){
 }
 
 void webserver(char* folder){
+    char* startFile = malloc(sizeof(char) * (strlen(folder) + strlen("index.html")));
+    go_to_folder("index.html", folder, startFile);
+    printf("startfile : %s\n", startFile);
     char listenbuff[BUFFER_SIZE];
     char* resp = "HTTP/1.0 200 OK\r\n"
 "Server: webserver-c\r\n"
@@ -72,7 +76,7 @@ void webserver(char* folder){
     printf("server listening for connections\n");
     printf("waiting on port %d\n", PORT);
     for (;;){
-         char* buffer = get_file_content("out/index.html");
+         char* buffer = get_file_content(startFile);
         connectionfd = accept(sockfd, NULL, NULL);
         memset(listenbuff, 0, BUFFER_SIZE);
         read( connectionfd , listenbuff, BUFFER_SIZE);
