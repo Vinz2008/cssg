@@ -2,6 +2,9 @@ CC = gcc
 CFLAGS=-Wall -Wno-sizeof-pointer-memaccess -O2 -c -g $(shell pkg-config --cflags libmarkdown)
 LDFLAGS=$(shell pkg-config --libs libmarkdown)
 
+ifeq ($(PREFIX),)
+    PREFIX := /usr/local
+endif
 
 
 SRCS := $(wildcard ./*.c) $(wildcard libs/*.c) $(wildcard webserver/*.c)
@@ -20,3 +23,7 @@ clean:
 
 run:
 	./cssg build
+
+install: cssg
+	install -d $(DESTDIR)$(PREFIX)/bin/
+	install cssg $(DESTDIR)$(PREFIX)/bin
