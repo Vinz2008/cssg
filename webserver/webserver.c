@@ -18,6 +18,21 @@ void error_webserver(const char* s){
     exit(1);
 }
 
+char* get_file_extension(char* filename){
+    bool found_period = false;
+    char* temp = malloc(strlen(filename));
+    memset(temp, 0, sizeof(temp));
+    for (int i = 0; i < strlen(filename); i++){
+        if (filename[i] == '.'){
+            found_period = true;
+        }
+        if (found_period){
+            strncat(temp, filename + i, 1);
+        }
+    }
+    return temp;
+}
+
 char* get_file_content(char* filename){
     char* buffer;
     FILE* f = fopen(filename, "r");
@@ -28,7 +43,13 @@ char* get_file_content(char* filename){
     long length = ftell(f);
     rewind(f);
     printf("length : %d\n");
-    char* http_header = "HTTP/1.0 200 OK\nServer: webserver-c\nContent-type: text/html\n\n";
+    //char* file_extension = get_file_content(file_extension);
+    //printf("file extension : %s\n", file_extension);
+    char* file_type = "html";
+    char* http_header_not_formatted = "HTTP/1.0 200 OK\nServer: webserver-c\nContent-type: text/%s\n\n";
+    //char* http_header = "HTTP/1.0 200 OK\nServer: webserver-c\nContent-type: text/html\n\n";
+    char* http_header = malloc((strlen(http_header_not_formatted) + strlen(file_type)) * sizeof(char));
+    sprintf(http_header, http_header_not_formatted, file_type);
     buffer = malloc(sizeof(char) * (length + strlen(http_header) + 1));
     strcpy(buffer, http_header);
     int n = strlen(http_header);
@@ -42,6 +63,7 @@ char* get_file_content(char* filename){
     return buffer;
     //return "HTTP/1.0 200 OK\r\n hello world\r\n";
 }
+
 
 char* get_url_http_header(char* header){
     int pos = 0;
@@ -105,7 +127,6 @@ int webserver(char* folder){
     printf("server listening for connections\n");
     printf("waiting on port %d\n", PORT);
     for (;;){
-        printf("got file content\n");
         connectionfd = accept(sockfd, NULL, NULL);
         memset(listenbuff, 0, BUFFER_SIZE);
         read( connectionfd , listenbuff, BUFFER_SIZE);
@@ -120,9 +141,12 @@ int webserver(char* folder){
         } else {
             path = startFile;
         } 
+        if (strcmp(url, "favicon.ico") != 0){
         char* buffer = get_file_content(path);
+        printf("got file content\n");
         //resp = get_file_content("out/index.html");
         write(connectionfd, buffer, strlen(buffer));
+        }
         close(connectionfd);
     }
     close(sockfd);
