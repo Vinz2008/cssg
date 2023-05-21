@@ -11,7 +11,7 @@
 #include "../misc.h"
 
 #define PORT 8084
-#define BUFFER_SIZE 3000
+#define BUFFER_SIZE 5000
 
 void error_webserver(const char* s){
     fprintf(stdout, "(webserver) %s\n errno : %s\n", s, strerror(errno));
@@ -43,7 +43,33 @@ char* get_file_content(char* filename){
     //return "HTTP/1.0 200 OK\r\n hello world\r\n";
 }
 
-void webserver(char* folder){
+char* get_url_http_header(char* header){
+    int pos = 0;
+    char* url = malloc(50*sizeof(char));
+    while (pos < strlen(header) && header[pos] != '/'){
+        pos++;
+    }
+    pos++;
+    if (pos == strlen(header) - 1){
+        return NULL;
+    }
+    int slash_pos = pos;
+    int url_pos = 0;
+    /*url[url_pos] = '/'; 
+    url_pos++;*/
+    while (pos < strlen(header) && header[pos] != ' '){
+        //printf("adding char : %c\n", header[pos]);
+        url[url_pos] = header[pos];
+        url_pos++;
+        pos++;
+    }
+    url[url_pos] = '\0';
+    //printf("url : %s\n", url);
+    url = realloc(url, (url_pos+1)*sizeof(char));
+    return url;
+}
+
+int webserver(char* folder){
     char* startFile = malloc(sizeof(char) * (strlen(folder) + strlen("index.html")));
     go_to_folder("index.html", folder, startFile);
     printf("startfile : %s\n", startFile);
@@ -57,7 +83,7 @@ void webserver(char* folder){
     int sockfd;
     int connectionfd;
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        error_webserver("webserver (socket)");
+        error_webserver("error creating socket)");
         return 1;
     }
     printf("created socket\n");
@@ -65,26 +91,40 @@ void webserver(char* folder){
     host_addr.sin_family = AF_INET;
     host_addr.sin_port = htons(PORT);
     host_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    int yes = 1;
+    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)); // option to make the web server use the port even if another process uses it. It is useful if you restart it a lot
     if (bind(sockfd, (struct sockaddr *)&host_addr, sizeof(host_addr)) != 0) {
-        error_webserver("webserver (bind)");
+        error_webserver("error binding socket");
         return 1;
     }
     printf("socket successfully bound to address\n");
     if (listen(sockfd, SOMAXCONN) != 0) {
-        error_webserver("webserver (listen)");
+        error_webserver("error listening to socket");
         return 1;
     }
     printf("server listening for connections\n");
     printf("waiting on port %d\n", PORT);
     for (;;){
-        char* buffer = get_file_content(startFile);
         printf("got file content\n");
         connectionfd = accept(sockfd, NULL, NULL);
         memset(listenbuff, 0, BUFFER_SIZE);
         read( connectionfd , listenbuff, BUFFER_SIZE);
         printf("buf : %s\n", listenbuff);
+        char* url = get_url_http_header(listenbuff);
+        printf("url : %s\n", url);
+        printf("strlen url : %ld\n", strlen(url));
+        char* path = malloc(sizeof(char) * 1000);
+        memset(path, 0, 1000);
+        if (strlen(url) != 0){
+            go_to_folder(url, folder, path); 
+        } else {
+            path = startFile;
+        } 
+        char* buffer = get_file_content(path);
         //resp = get_file_content("out/index.html");
         write(connectionfd, buffer, strlen(buffer));
         close(connectionfd);
     }
+    close(sockfd);
+    return 0;
 }

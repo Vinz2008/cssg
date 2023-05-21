@@ -1,1 +1,1 @@
-void webserver(char* folder);
+int webserver(char* folder);
