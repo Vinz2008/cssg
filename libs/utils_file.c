@@ -31,8 +31,8 @@ bool is_dir(const char* path){
 }
 
 char* remove_file_extension(const char* filename){
-    char* temp = malloc(strlen(filename));
-    memset(temp, 0, sizeof(temp));
+    char* temp = malloc(strlen(filename)*sizeof(char));
+    memset(temp, 0, strlen(filename));
     for (int i = 0; i < strlen(filename); i++){
         if (filename[i] != '.'){
             strncat(temp, filename + i, 1);

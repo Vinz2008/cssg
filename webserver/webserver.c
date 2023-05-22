@@ -30,8 +30,8 @@ void open_browser_url(){
 
 char* get_file_extension(char* filename){
     bool found_period = false;
-    char* temp = malloc(strlen(filename));
-    memset(temp, 0, sizeof(temp));
+    char* temp = malloc(strlen(filename) * sizeof(char));
+    memset(temp, 0, strlen(filename));
     for (int i = 0; i < strlen(filename); i++){
         if (filename[i] == '.'){
             found_period = true;
@@ -85,7 +85,6 @@ char* get_url_http_header(char* header){
     if (pos == strlen(header) - 1){
         return NULL;
     }
-    int slash_pos = pos;
     int url_pos = 0;
     /*url[url_pos] = '/'; 
     url_pos++;*/
@@ -106,10 +105,6 @@ int webserver(char* folder){
     go_to_folder("index.html", folder, startFile);
     printf("startfile : %s\n", startFile);
     char listenbuff[BUFFER_SIZE];
-    char* resp = "HTTP/1.0 200 OK\r\n"
-"Server: webserver-c\r\n"
-"Content-type: text/html\r\n\r\n"
-"<html>hello, world</html>\r\n";
 
     struct sockaddr_in host_addr;
     int sockfd;

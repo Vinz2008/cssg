@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS=-Wall -Wno-sizeof-pointer-memaccess -O2 -c -g $(shell pkg-config --cflags libmarkdown)
+CFLAGS=-Wall -pedantic -O2 -c -g $(shell pkg-config --cflags libmarkdown)
 LDFLAGS=$(shell pkg-config --libs libmarkdown)
 
 ifeq ($(PREFIX),)

@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <dirent.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #include "parser.h"
 #include "parser_config.h"
 #include "libs/startswith.h"
@@ -88,7 +89,7 @@ void get_file_array(char* directory, char* html_folder){
 				printf("path for file array : %s\n", path);
                 char* temp = remove_file_extension(folder);
                 char* html_path = malloc(sizeof(char) * 1000);
-				memset(html_path, 0, sizeof(html_path));
+				memset(html_path, 0, 1000);
                 go_to_folder(temp, html_folder, html_path);
                 free(temp);
 				strcat(html_path, ".html");
@@ -218,7 +219,6 @@ void insert_template(const char* html_file, config_t* config){
             parse_line(line, lineList);
             int a = 0;
             printf("lineList[%d] : %s\n", a, lineList[a].str);
-            int lineListLength = strlen(lineList[1].str);
             char* path = malloc((strlen(lineList[1].str) + strlen(config->templates_directory)  + 1) * sizeof(char));
             snprintf(path, strlen(config->templates_directory) + 1 + strlen(lineList[1].str) + strlen(".html") + 1, "%s/%s.html", config->templates_directory, lineList[1].str);
             if (strcmp(path, main_filename) == 0){

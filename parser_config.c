@@ -54,8 +54,8 @@ struct parameter* parse_config_line(char* line){
     char* name = malloc(40 * sizeof(char));
     char* value = malloc(40 * sizeof(char));;
     //char* value = malloc(20 * sizeof(char));
-    memset(name, 0, sizeof(name));
-    memset(value, 0, sizeof(value));
+    memset(name, 0, 40);
+    memset(value, 0, 40);
     for (int i = 0; i < strlen(line); i++){
         if (line[i] == '='){
             equalFound = true;
