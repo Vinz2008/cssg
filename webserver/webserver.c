@@ -52,7 +52,7 @@ char* get_file_content(char* filename){
     }
     long length = ftell(f);
     rewind(f);
-    printf("length : %d\n");
+    printf("length : %ld\n", length);
     //char* file_extension = get_file_content(file_extension);
     //printf("file extension : %s\n", file_extension);
     char* file_type = "html";
