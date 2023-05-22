@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "libs/removeCharFromString.h"
 
-int find_parameter_pos(const char* name, struct config_file* config){
+int find_parameter_pos_no_error(const char* name, struct config_file* config){
     int pos = -1;
     for (int i = 0; i < config->used; i++){
         if (strcmp(name, config->parameters[i].name) == 0){
@@ -13,6 +13,11 @@ int find_parameter_pos(const char* name, struct config_file* config){
             break;
         }
     }
+    return pos;
+}
+
+int find_parameter_pos(const char* name, struct config_file* config){
+    int pos = find_parameter_pos_no_error(name, config);
     if (pos == -1){
         printf("ERROR : parameter %s could not be found\n", name);
         exit(1);
@@ -20,6 +25,7 @@ int find_parameter_pos(const char* name, struct config_file* config){
 
     return pos;
 }
+
 
 void init_config_list(struct config_file* config, size_t initialSize){
     config->parameters = malloc(initialSize * sizeof(struct parameter));

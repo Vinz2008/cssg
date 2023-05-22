@@ -11,6 +11,7 @@
 #include "parser_config.h"
 #include "markdown_converter.h"
 #include "misc.h"
+#include "libs/utils_file.h"
 #include "libs/startswith.h"
 #include "webserver/webserver.h"
 
@@ -25,6 +26,10 @@ int main(int argc, char **argv){
     for (int i = 0; i < argc; i++){
         printf("argv[%d] : %s\n",i, argv[i]);
     }
+    struct config_file* alias_file = NULL;
+    if (if_file_exists("alias.conf")){
+        alias_file = parse_config_file("alias.conf");
+    }
     struct config_file* root_parameter_file =  parse_config_file("cssg.conf");
     char* temp_directory = root_parameter_file->parameters[find_parameter_pos("temp_directory", root_parameter_file)].value_str;
     char* article_directory = root_parameter_file->parameters[find_parameter_pos("articles_directory", root_parameter_file)].value_str;
@@ -37,6 +42,7 @@ int main(int argc, char **argv){
     config->out_directory = out_directory;
     config->temp_directory = temp_directory;
     config->templates_directory = templates_directory;
+    config->alias_file = alias_file;
     if (strcmp(argv[1], "build") == 0){
     insert_template("index.html", config);
     //generate_html_files_recursive("./articles", "./temp");

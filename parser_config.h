@@ -21,6 +21,7 @@ typedef struct {
     char* articles_directory;
     char* temp_directory;
     char* out_directory;
+    struct config_file* alias_file;
 } config_t;
 
 int find_parameter_pos(const char* name, struct config_file* config);
@@ -29,5 +30,6 @@ void append_parameter_config_list(struct parameter param, struct config_file* co
 void empty_config_list(struct config_file* config);
 struct parameter* parse_config_line(char* line);
 struct config_file* parse_config_file(char* path);
+int find_parameter_pos_no_error(const char* name, struct config_file* config);
 
 #endif

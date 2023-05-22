@@ -119,7 +119,7 @@ void log_file_array(const char* log_filename){
 }
 
 
-void extract_variables(FILE* f, char* line, struct file File){
+void extract_variables(FILE* f, char* line, struct file File, config_t* config){
     int pos = 0;
     for (int i = 0; i < strlen(line);i++){
         if (line[i] == '{' && line[i+1] == '{'){
@@ -138,7 +138,14 @@ void extract_variables(FILE* f, char* line, struct file File){
             printf("OUT : %s\n", out);
             if (startswith("filename", out) == 1){
                 printf("FILENAME\n");
-                fprintf(f, "%s", File.name);
+                char* filename = File.name;
+                if (config->alias_file != NULL){
+                int pos = find_parameter_pos_no_error(File.name, config->alias_file);
+                if (pos != -1){
+                    filename = config->alias_file->parameters[pos].value_str;
+                }
+                }
+                fprintf(f, "%s", filename);
                 pos+=strlen(out) + 3;
                 i+=strlen(out) + 3;
             } 
@@ -168,7 +175,7 @@ void extract_variable_files(FILE* f, struct line_array* larray, config_t* config
         printf("path file array [%d] : %s\n", i, temp_file_array->files[i].path);
         for (int j = 0; j < larray->used; j++){
             printf("line in loop : %s\n", larray->lines[j].line);
-            extract_variables(f, larray->lines[j].line, temp_file_array->files[i]);
+            extract_variables(f, larray->lines[j].line, temp_file_array->files[i], config);
         }
     }
 }

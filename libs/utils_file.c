@@ -10,6 +10,13 @@
   #define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
 #endif
 
+#ifdef WIN32
+#include <io.h>
+#define F_OK 0
+#define access _access
+#endif
+
+
 
 bool is_dir(const char* path){
 #ifdef _WIN32
@@ -34,4 +41,11 @@ char* remove_file_extension(const char* filename){
         }
     }
     return temp;
+}
+
+bool if_file_exists(char* path){
+    if (access(path, F_OK) == 0) {
+        return true;
+    }
+    return false;
 }

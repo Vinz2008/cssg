@@ -18,6 +18,16 @@ void error_webserver(const char* s){
     exit(1);
 }
 
+
+void open_browser_url(){
+    char* url = malloc(sizeof(char) * 300);
+    sprintf(url, "localhost:%d", PORT);
+    char* cmd_start = "xdg-open ";
+    char* cmd = malloc(sizeof(char) * (strlen(url) + strlen(cmd_start) + 1));
+    sprintf(cmd, "%s%s", cmd_start, url);
+    system(cmd);
+}
+
 char* get_file_extension(char* filename){
     bool found_period = false;
     char* temp = malloc(strlen(filename));
@@ -126,6 +136,7 @@ int webserver(char* folder){
     }
     printf("server listening for connections\n");
     printf("waiting on port %d\n", PORT);
+    open_browser_url();
     for (;;){
         connectionfd = accept(sockfd, NULL, NULL);
         memset(listenbuff, 0, BUFFER_SIZE);
