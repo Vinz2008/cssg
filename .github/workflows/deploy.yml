@@ -13,6 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: install dependencies
+      run: sudo apt-get install libmarkdown2-dev
     - name: make
       run: make
     - name: make run
