@@ -19,10 +19,10 @@ cssg: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^
 
 clean:
-	rm -rf cssg ./*.o ./libs/*.o temp/* out/* ./webserver/*.o
+	rm -rf cssg ./*.o ./libs/*.o example/temp/* example/out/* ./webserver/*.o
 
 run:
-	./cssg build
+	cd example && ../cssg build
 
 install: cssg
 	install -d $(DESTDIR)$(PREFIX)/bin/
