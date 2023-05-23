@@ -1,0 +1,1 @@
+void generate_project(char* project_name);

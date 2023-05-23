@@ -11,6 +11,7 @@
 #include "parser_config.h"
 #include "markdown_converter.h"
 #include "misc.h"
+#include "project_generator.h"
 #include "libs/utils_file.h"
 #include "libs/startswith.h"
 #include "webserver/webserver.h"
@@ -21,10 +22,15 @@ int main(int argc, char **argv){
         printf("build : build project\n");
         printf("clean : clean project\n");
         printf("server : server project\n");
+        printf("new : create new project\n");
         exit(0);
     }
     for (int i = 0; i < argc; i++){
         printf("argv[%d] : %s\n",i, argv[i]);
+    }
+    if (strcmp(argv[1], "new") == 0){
+        generate_project(argv[2]);
+        exit(0);
     }
     struct config_file* alias_file = NULL;
     if (if_file_exists("alias.conf")){
