@@ -81,7 +81,9 @@ void get_file_array(char* directory, char* html_folder){
                 go_to_folder(folder, html_folder, temp_html_folder);
                 printf("name search file array %s\n", folder);
                 printf("temp_file_array->used : %ld\n", temp_file_array->used);
-                mkdir_if_not_exist(temp_html_folder);
+                printf("temp_html_folder : %s\n", temp_html_folder);
+                printf("html_folder : %s\n", html_folder);
+                //mkdir_if_not_exist(temp_html_folder);
                 recurse_nb++;
                 get_file_array(path, temp_html_folder);
 			} else {

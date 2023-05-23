@@ -31,6 +31,7 @@ void go_to_folder(char* folder, char* path, char* out){
 
 void mkdir_if_not_exist(char* path){
     struct stat st = {0};
+    printf("create folder : %s\n", path);
     if (stat(path, &st) == -1){
         mkdir(path, 0700);
     }
