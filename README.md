@@ -7,9 +7,11 @@ CSSG means C static site generator. It is a static site generator written in C.
 ## Advantages
 
 - Easy to use
-- Less than 100kb
+- Less than 50kb stripped, less than 100kb not stripped
 - Easy to configure
-- Instantaneous build time 
+- Instantaneous build time (less than a tenth of a second in a normal project)
+- Generate static html
+- Very customizable
 
 ## What it does
 
