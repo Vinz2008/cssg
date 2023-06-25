@@ -9,9 +9,16 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "../misc.h"
+#include "../libs/utils_file.h"
 
 #define PORT 8084
 #define BUFFER_SIZE 5000
+
+struct FileContent {
+    bool is_binary;
+    char* buffer;
+    size_t size;
+};
 
 void error_webserver(const char* s){
     fprintf(stdout, "(webserver) %s\n errno : %s\n", s, strerror(errno));
@@ -28,6 +35,7 @@ void open_browser_url(){
     system(cmd);
 }
 
+
 char* get_file_extension(char* filename){
     bool found_period = false;
     char* temp = malloc(strlen(filename) * sizeof(char));
@@ -43,9 +51,49 @@ char* get_file_extension(char* filename){
     return temp;
 }
 
-char* get_file_content(char* filename){
+bool is_file_binary(char* file_extension){
+    if (strcmp(file_extension, ".png") == 0 || strcmp(file_extension, ".jpg") == 0){
+        return true;
+    }
+    if (strcmp(file_extension, ".html") == 0){
+        return false;
+    }
+    return false;
+}
+
+char* get_general_filetype_from_file_extension(char* file_extension){
+    if (strcmp(file_extension, ".png") == 0 || strcmp(file_extension, ".jpg") == 0){
+        return "image";
+    }
+    if (strcmp(file_extension, ".html") == 0){
+        return "text";
+    }
+    return "text";
+}
+
+char* get_filetype_from_file_extension(char* file_extension){
+    if (strcmp(file_extension, ".png") == 0){
+        return "png";
+    }
+    if (strcmp(file_extension, ".png") == 0){
+        return "jpg";
+    }
+    if (strcmp(file_extension, ".html") == 0){
+        return "html";
+    }
+    return "html";
+}
+
+struct FileContent* get_file_content(char* filename){
     char* buffer;
-    FILE* f = fopen(filename, "r");
+    char* file_extension = get_file_extension(filename);
+    bool is_file_binary_bool = is_file_binary(file_extension);
+    printf("file extension : %s\n", file_extension);
+    char* mode = "r";
+    if (is_file_binary){
+        mode = "rb";
+    }
+    FILE* f = fopen(filename, mode);
     if (f == NULL || fseek(f, 0, SEEK_END)) {
         error_webserver("file doesn't exist\n");
         return NULL;
@@ -53,15 +101,25 @@ char* get_file_content(char* filename){
     long length = ftell(f);
     rewind(f);
     printf("length : %ld\n", length);
-    //char* file_extension = get_file_content(file_extension);
-    //printf("file extension : %s\n", file_extension);
-    char* file_type = "html";
-    char* http_header_not_formatted = "HTTP/1.0 200 OK\nServer: webserver-c\nContent-type: text/%s\n\n";
+    char* general_file_type = get_general_filetype_from_file_extension(file_extension);
+    char* file_type = get_filetype_from_file_extension(file_extension);
+    char* http_header_not_formatted = "HTTP/1.0 200 OK\nServer: webserver-c\nContent-type: %s/%s\n\n";
     //char* http_header = "HTTP/1.0 200 OK\nServer: webserver-c\nContent-type: text/html\n\n";
     char* http_header = malloc((strlen(http_header_not_formatted) + strlen(file_type)) * sizeof(char));
-    sprintf(http_header, http_header_not_formatted, file_type);
+    if (!http_header){
+        error_webserver("error webserver : malloc\n");
+    }
+    sprintf(http_header, http_header_not_formatted, general_file_type, file_type);
     buffer = malloc(sizeof(char) * (length + strlen(http_header) + 1));
     strcpy(buffer, http_header);
+    if (is_file_binary_bool){
+        int size_read = fread(buffer + strlen(http_header), length + 1, 1, f);
+        if (ferror(f)){
+            perror("error when reading binary file");
+        }
+        printf("size read from binary file : %d\n", size_read);
+        //buffer[length] = '\0';
+    } else {
     int n = strlen(http_header);
     char c;
     while ((c = fgetc(f)) != EOF)
@@ -69,8 +127,15 @@ char* get_file_content(char* filename){
         buffer[n++] = (char) c;
     }
     buffer[n] = '\0';
+    }
     fclose(f);
-    return buffer;
+    free(file_extension);
+    struct FileContent* fileContent = malloc(sizeof(struct FileContent));
+    fileContent->buffer = buffer;
+    fileContent->is_binary = is_file_binary_bool;
+    fileContent->size = length;
+    return fileContent;
+    //return buffer;
     //return "HTTP/1.0 200 OK\r\n hello world\r\n";
 }
 
@@ -146,12 +211,27 @@ int webserver(char* folder){
             go_to_folder(url, folder, path); 
         } else {
             path = startFile;
-        } 
+        }
+        if (!if_file_exists(path)){
+            char* error404 = "HTTP/1.0 404 Not Found\r\nContent-Length: 16\r\nConnection: keep-alive\r\n\r\n<a>ERROR 404</a>\r\n\r\n";
+            write(connectionfd, error404, strlen(error404));
+        } else {
         if (strcmp(url, "favicon.ico") != 0){
-        char* buffer = get_file_content(path);
-        printf("got file content\n");
+        printf("path : %s\n", path);
+        struct FileContent* fileContent = get_file_content(path);
+        char* buffer = fileContent->buffer;
+        size_t size = fileContent->size;
+        printf("got file content of %ld length\n", size);
+        char* temp_buffer_ptr = buffer;
+        int length_to_send = strlen(buffer);
+        if (fileContent->is_binary){
+            length_to_send = fileContent->size;
+        }
         //resp = get_file_content("out/index.html");
-        write(connectionfd, buffer, strlen(buffer));
+        ssize_t size_sent = write(connectionfd, temp_buffer_ptr, length_to_send);
+        printf("sent %ld bytes\n", size_sent);
+        free(buffer);
+        }
         }
         close(connectionfd);
     }
