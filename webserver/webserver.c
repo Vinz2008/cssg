@@ -27,7 +27,7 @@ void error_webserver(const char* s){
 
 
 void open_browser_url(){
-    char* url = malloc(sizeof(char) * 300);
+    char* url = malloc(sizeof(char) * 30);
     sprintf(url, "localhost:%d", PORT);
     char* cmd_start = "xdg-open ";
     char* cmd = malloc(sizeof(char) * (strlen(url) + strlen(cmd_start) + 1));
@@ -52,21 +52,27 @@ char* get_file_extension(char* filename){
 }
 
 bool is_file_binary(char* file_extension){
-    if (strcmp(file_extension, ".png") == 0 || strcmp(file_extension, ".jpg") == 0){
+    if (strcmp(file_extension, ".png") == 0 || strcmp(file_extension, ".jpg") == 0 || strcmp(file_extension, ".jpeg") == 0 || strcmp(file_extension, ".webp") == 0 || strcmp(file_extension, ".ico") == 0 || strcmp(file_extension, ".gif") == 0 || strcmp(file_extension, ".aac") == 0 || strcmp(file_extension, ".weba") == 0 || strcmp(file_extension, ".avi") == 0 || strcmp(file_extension, ".ts") == 0 || strcmp(file_extension, ".webm") == 0){
         return true;
     }
-    if (strcmp(file_extension, ".html") == 0){
+    if (strcmp(file_extension, ".html") == 0 || strcmp(file_extension, ".htm") == 0 || strcmp(file_extension, ".txt") == 0 || strcmp(file_extension, ".css") == 0 || strcmp(file_extension, ".js") == 0 || strcmp(file_extension, ".mjs") == 0 || strcmp(file_extension, ".json") == 0){
         return false;
     }
     return false;
 }
 
 char* get_general_filetype_from_file_extension(char* file_extension){
-    if (strcmp(file_extension, ".png") == 0 || strcmp(file_extension, ".jpg") == 0){
+    if (strcmp(file_extension, ".png") == 0 || strcmp(file_extension, ".jpg") == 0 || strcmp(file_extension, ".jpeg") == 0 || strcmp(file_extension, ".webp") == 0 || strcmp(file_extension, ".ico") == 0 || strcmp(file_extension, ".gif") == 0){
         return "image";
     }
-    if (strcmp(file_extension, ".html") == 0){
+    if (strcmp(file_extension, ".html") == 0 || strcmp(file_extension, ".htm") == 0 || strcmp(file_extension, ".txt") == 0 || strcmp(file_extension, ".css") == 0 || strcmp(file_extension, ".js") == 0 || strcmp(file_extension, ".mjs") == 0 || strcmp(file_extension, ".json") == 0){
         return "text";
+    }
+    if (strcmp(file_extension, ".aac") == 0 || strcmp(file_extension, ".weba") == 0){
+        return "audio";
+    }
+    if (strcmp(file_extension, ".avi") == 0 || strcmp(file_extension, ".ts") == 0 || strcmp(file_extension, ".webm") == 0){
+        return "video";
     }
     return "text";
 }
@@ -75,12 +81,52 @@ char* get_filetype_from_file_extension(char* file_extension){
     if (strcmp(file_extension, ".png") == 0){
         return "png";
     }
-    if (strcmp(file_extension, ".png") == 0){
+    if (strcmp(file_extension, ".jpg") == 0 || strcmp(file_extension, ".jpeg") == 0){
         return "jpg";
     }
-    if (strcmp(file_extension, ".html") == 0){
+    if (strcmp(file_extension, ".webp") == 0){
+        return "webp";
+    }
+    if (strcmp(file_extension, ".ico") == 0){
+        return "vnd.microsoft.icon";
+    }
+    if (strcmp(file_extension, ".txt") == 0){
+        return "plain";
+    }
+    if (strcmp(file_extension, ".html") == 0 || strcmp(file_extension, ".htm") == 0){
         return "html";
     }
+    if (strcmp(file_extension, ".css") == 0){
+        return "css";
+    }
+    if (strcmp(file_extension, ".js") == 0 || strcmp(file_extension, ".mjs") == 0){
+        return "javascript";
+    }
+    if (strcmp(file_extension, ".json") == 0){
+        return "json";
+    }
+    if (strcmp(file_extension, ".aac") == 0){
+        return "aac";
+    }
+    if (strcmp(file_extension, ".avi") == 0){
+        return "x-msvideo";
+    }
+    if (strcmp(file_extension, ".gif") == 0){
+        return "gif";
+    }
+    if (strcmp(file_extension, ".ts") == 0){
+        return "mp2t";
+    }
+    if (strcmp(file_extension, ".webm") == 0){
+        return "webm";
+    }
+    if (strcmp(file_extension, ".weba") == 0){
+        return "webm";
+    }
+    if (strcmp(file_extension, ".bin") == 0){
+        return "octet-stream";
+    }
+
     return "html";
 }
 
@@ -90,7 +136,7 @@ struct FileContent* get_file_content(char* filename){
     bool is_file_binary_bool = is_file_binary(file_extension);
     printf("file extension : %s\n", file_extension);
     char* mode = "r";
-    if (is_file_binary){
+    if (is_file_binary(file_extension)){
         mode = "rb";
     }
     FILE* f = fopen(filename, mode);
