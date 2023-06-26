@@ -6,6 +6,10 @@
 #include <sys/stat.h>
 #include "parser_config.h"
 
+#ifdef _WIN32
+#include "windows.h"
+#endif
+
 
 int unlink_cb(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf){
     int rv = remove(fpath);

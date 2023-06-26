@@ -16,6 +16,10 @@
 #include "libs/startswith.h"
 #include "webserver/webserver.h"
 
+#ifdef _WIN32
+#include "windows.h"
+#endif
+
 int main(int argc, char **argv){
     if (argc < 2){
         printf("Usage : \n");
@@ -76,7 +80,12 @@ int main(int argc, char **argv){
         } else {
             folder = argv[2];
         }
+#ifdef _WIN32
+    printf("webserver is not implemented in windows for now\n");
+    exit(1);
+#else
         webserver(folder);
+#endif
     } else {
         printf("ERROR : instruction doesn't exist\n");
         exit(1);

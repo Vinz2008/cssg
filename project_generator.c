@@ -4,6 +4,10 @@
 #include <sys/stat.h>
 #include "parser_config.h"
 
+#ifdef _WIN32
+#include "windows.h"
+#endif
+
 char* cssg_conf_template = "templates_directory=./templates\n"
 "img_directory=./img\n"
 "articles_directory=./articles\n"

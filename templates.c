@@ -12,6 +12,10 @@
 #include "libs/utils_file.h"
 #include "misc.h"
 
+#ifdef _WIN32
+#include "windows.h"
+#endif
+
 bool for_mode = false;
 
 

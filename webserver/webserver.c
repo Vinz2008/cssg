@@ -1,3 +1,5 @@
+#ifndef _WIN32
+
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
@@ -284,3 +286,5 @@ int webserver(char* folder){
     close(sockfd);
     return 0;
 }
+
+#endif
