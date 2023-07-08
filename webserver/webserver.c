@@ -1,15 +1,27 @@
 #ifndef _WIN32
 
+#include "webserver.h"
+
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
+
+#ifdef _WIN32
+#include <winsock2.h>
+#include <Ws2tcpip.h>
+#else
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include <sys/mman.h>
-#include <fcntl.h>
+#endif
+
+#include "windows.h"
+#include "../windows.h"
+
+//#include <sys/mman.h>
+//#include <fcntl.h>
 #include <stdlib.h>
-#include <assert.h>
+//#include <assert.h>
 #include "../misc.h"
 #include "http_header.h"
 #include "../libs/utils_file.h"
@@ -219,9 +231,13 @@ int webserver(char* folder){
     go_to_folder("index.html", folder, startFile);
     printf("startfile : %s\n", startFile);
     char listenbuff[BUFFER_SIZE];
+    
+#ifdef _WIN32
+    WIN32InitSocket();
+#endif
 
     struct sockaddr_in host_addr;
-    int sockfd;
+    SOCKET_TYPE sockfd;
     int connectionfd;
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         error_webserver("error creating socket)");
@@ -287,7 +303,14 @@ int webserver(char* folder){
         }
         close(connectionfd);
     }
+
+#ifdef _WIN32
+    WIN32QuitSocket();
+    WIN32CloseSocket();
+#else
+    shutdown(sockfd, SHUT_RDWR);
     close(sockfd);
+#endif
     return 0;
 }
 
