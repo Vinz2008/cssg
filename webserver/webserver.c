@@ -18,12 +18,20 @@
 #include "windows.h"
 #include "../windows.h"
 
+#ifdef __APPLE__
+#ifndef st_mtime
+#define st_mtime st_mtimespec.tv_sec
+#endif
+#endif
+
+
 //#include <sys/mman.h>
 //#include <fcntl.h>
 #include <stdlib.h>
 //#include <assert.h>
 #include "../misc.h"
 #include "http_header.h"
+#include "file_watcher.h"
 #include "../libs/utils_file.h"
 
 #define PORT 8084
@@ -227,11 +235,12 @@ char* get_url_http_header(char* header){
 }
 
 int webserver(char* folder){
+    create_file_watcher(" ");
     char* startFile = malloc(sizeof(char) * (strlen(folder) + strlen("index.html")));
     go_to_folder("index.html", folder, startFile);
     printf("startfile : %s\n", startFile);
     char listenbuff[BUFFER_SIZE];
-    
+
 #ifdef _WIN32
     WIN32InitSocket();
 #endif
