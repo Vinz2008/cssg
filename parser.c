@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "libs/removeCharFromString.h"
+#include "libs/string.h"
 
 void parse_line(char* line, struct word* lineList){
     char line2[1000];

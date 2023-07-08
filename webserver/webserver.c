@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "../misc.h"
+#include "http_header.h"
 #include "../libs/utils_file.h"
 
 #define PORT 8084
@@ -190,7 +191,7 @@ struct FileContent* get_file_content(char* filename){
 
 char* get_url_http_header(char* header){
     int pos = 0;
-    char* url = malloc(50*sizeof(char));
+    char* url = malloc(200*sizeof(char));
     while (pos < strlen(header) && header[pos] != '/'){
         pos++;
     }
@@ -251,6 +252,9 @@ int webserver(char* folder){
         read( connectionfd , listenbuff, BUFFER_SIZE);
         printf("buf : %s\n", listenbuff);
         char* url = get_url_http_header(listenbuff);
+        struct http_header* parsed_header = parse_http_header(listenbuff);
+        url = parsed_header->url;
+        printf("parsed header : url %s and request type %s\n", parsed_header->url, parsed_header->request_type);
         printf("url : %s\n", url);
         printf("strlen url : %ld\n", strlen(url));
         char* path = malloc(sizeof(char) * 1000);

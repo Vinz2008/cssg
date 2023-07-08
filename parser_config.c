@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
-#include "libs/removeCharFromString.h"
+#include "libs/string.h"
 
 int find_parameter_pos_no_error(const char* name, struct config_file* config){
     int pos = -1;
