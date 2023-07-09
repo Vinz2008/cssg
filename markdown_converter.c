@@ -100,8 +100,9 @@ void insert_in_default_template(char* filename, struct config_file* config, char
 				printf("TEST\n");
 				while (fgets(line3, 1024, temp) != NULL){
 					printf("line %s : %s\n", temp_path, line3);
-					fprintf(out, "%s\n", line3);
+					fprintf(out, "%s", line3);
 				}
+                fprintf(out, "\n", line3);
 				printf("TEST2\n");
 				fclose(temp);
 				free(temp_path);
@@ -112,7 +113,7 @@ void insert_in_default_template(char* filename, struct config_file* config, char
 			free(lineList);
 		} else {
 			printf("line [default] : %s\n", line);
-			fprintf(out, "%s\n", line);
+			fprintf(out, "%s", line);
 		}
 	}
 	fclose(in);
