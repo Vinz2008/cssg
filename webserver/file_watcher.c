@@ -5,6 +5,12 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <string.h>
+#define _POSIX1_SOURCE 2
+#include <unistd.h>
+
+#ifdef _WIN32
+#include <libloaderapi.h>
+#endif
 
 #include "../misc.h"
 #include "../libs/utils_file.h"
@@ -28,6 +34,26 @@ struct FileList {
     size_t allocated_size;
     size_t length;
 };
+
+char* get_self_path(){
+    char* self_path = malloc(sizeof(char) * CUSTOM_PATH_MAX);
+#ifndef _WIN32
+    readlink("/proc/self/exe", self_path, CUSTOM_PATH_MAX);
+#else
+    GetModuleFileNameA(NULL, self_path, CUSTOM_PATH_MAX);
+#endif
+    return self_path;
+}
+
+void rebuild_folder(){
+    char* self_path = get_self_path();
+    char* format = "%s build";
+    size_t cmd_size = (CUSTOM_PATH_MAX + strlen(format)) * sizeof(char);
+    char* cmd = malloc(cmd_size);
+    snprintf(cmd, cmd_size, format, self_path);
+    printf("cmd : %s\n", cmd);
+    system(cmd);
+}
 
 struct FileList* createFileList(){
     struct FileList* fl = malloc(sizeof(struct FileList));
@@ -54,6 +80,7 @@ long get_mtime(char* path){
     struct stat buf;
     memset(&buf, 0, sizeof(buf));
     stat(path, &buf);
+    //printf("got mtime %s : %ld\n", path, buf.st_mtime);
     return buf.st_mtime;
 }
 
@@ -112,15 +139,30 @@ bool has_file_changed(struct file* f){
 
 void* file_watcher(void* arg){
     char* src_folder = (char*)arg;
-    struct FileList* filelist = createFileList();
+    struct FileList* filelist /*= createFileList()*/;
     printf("test hello from file watcher\n");
-    getFileList("./articles"); // change to list of folders so it can search in multiple folders
-    return NULL;
+    filelist = getFileList("./articles"); // change to list of folders so it can search in multiple folders
+    for (int i = 0; i < filelist->length; i++){
+        printf("file %d : %s with mtime %ld\n", i, filelist->list[i].path, filelist->list[i].mtime);
+    }
+    while(1){
+        //printf("watching files\n");
+        for (int i = 0; i < filelist->length; i++){
+            if (has_file_changed(filelist->list + i)){
+                printf("file changed %s\n", filelist->list[i].path);
+                rebuild_folder();
+                update_mtime(filelist->list + i);
+
+            }
+        }   
+    }
+    //return NULL;
 }
 
 void create_file_watcher(char* src_folder){
     pthread_t thr;
     int i = 0;
     pthread_create( &thr, NULL, file_watcher, (void*)src_folder);
-    pthread_join(thr, NULL);
+    //pthread_join(thr, NULL);
+    pthread_detach(thr);
 }
