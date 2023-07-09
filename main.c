@@ -21,12 +21,12 @@
 #endif
 
 int main(int argc, char **argv){
-    if (argc < 2){
+    if (argc < 2 || strcmp(argv[1], "help") == 0){
         printf("Usage : \n");
         printf("build : build project\n");
         printf("clean : clean project\n");
-        printf("server : server project\n");
-        printf("new : create new project\n");
+        printf("serve : serve the project\n");
+        printf("new [NAME] : create new project\n");
         exit(0);
     }
     for (int i = 0; i < argc; i++){
