@@ -42,6 +42,10 @@ void append_parameter_config_list(struct parameter param, struct config_file* co
 }
 
 void empty_config_list(struct config_file* config){
+    for (int i = 0; i < config->size; i++){
+        free(config->parameters[i].name);
+        free(config->parameters[i].value_str);
+    }
     free(config->parameters);
     config->parameters = NULL;
     config->used = config->size = 0;

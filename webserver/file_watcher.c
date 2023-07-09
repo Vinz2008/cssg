@@ -89,7 +89,7 @@ void getFileListRecurse(struct FileList* fl, char* current_folder, char* path){
     struct dirent *dp;
     DIR *dir = opendir(current_folder);
 	if (!dir){
-		return NULL;
+		return;
 	}
     while ((dp = readdir(dir)) != NULL){
         char* folder = dp->d_name;
@@ -121,7 +121,6 @@ void getFileListRecurse(struct FileList* fl, char* current_folder, char* path){
 
 struct FileList* getFileList(char* folder){
     struct FileList* fl = createFileList();
-    struct dirent *dp;
     char* path = malloc(sizeof(char) * CUSTOM_PATH_MAX);
     getFileListRecurse(fl, folder, path);
     free(path);
@@ -162,7 +161,6 @@ void* file_watcher(void* arg){
 
 void create_file_watcher(char* src_folder){
     pthread_t thr;
-    int i = 0;
     pthread_create( &thr, NULL, file_watcher, (void*)src_folder);
     //pthread_join(thr, NULL);
     pthread_detach(thr);

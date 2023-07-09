@@ -33,6 +33,15 @@ void append_file_array(struct file File, struct file_array* File_array){
     File_array->files[File_array->used++] = File;
 }
 
+void destroy_file_array(struct file_array* File_array){
+    for (int i = 0; i < File_array->used; i++){
+        free(File_array->files[i].name);
+        free(File_array->files[i].path);
+    }
+    free(File_array->files);
+    free(File_array);
+}
+
 
 void init_line_array(struct line_array* Line_array, size_t initialSize){
     printf("initialSize : %ld\n", initialSize);
@@ -225,14 +234,15 @@ void insert_template(const char* html_file, config_t* config){
             parse_line(line, lineList);
             int a = 0;
             printf("lineList[%d] : %s\n", a, lineList[a].str);
-            char* path = malloc((strlen(lineList[1].str) + strlen(config->templates_directory)  + 1) * sizeof(char));
-            snprintf(path, strlen(config->templates_directory) + 1 + strlen(lineList[1].str) + strlen(".html") + 1, "%s/%s.html", config->templates_directory, lineList[1].str);
+            size_t path_length = strlen(lineList[1].str) + strlen(config->templates_directory)  + 1 + strlen(".html") + 1;
+            char* path = malloc(path_length * sizeof(char));
+            snprintf(path, path_length, "%s/%s.html", config->templates_directory, lineList[1].str);
             if (strcmp(path, main_filename) == 0){
                 printf("ERROR : Can't insert [main].html as a template\n");
                 exit(1);
             }
             char* temp_path = malloc(40 * sizeof(char));
-            snprintf(temp_path, sizeof(temp_path), "%s/nav.html", config->templates_directory);
+            snprintf(temp_path, 40, "%s/nav.html", config->templates_directory);
             printf("path : %s\n", temp_path);
             free(temp_path);
             temp = fopen(path, "r");
@@ -270,4 +280,5 @@ void insert_template(const char* html_file, config_t* config){
     fclose(f);
     fclose(f2);
     free(main_filename);
+    destroy_file_array(temp_file_array);
 }

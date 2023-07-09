@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include "libs/string.h"
 
-void parse_line(char* line, struct word* lineList){
+int parse_line(char* line, struct word* lineList){
     char line2[1000];
     strcpy(line2, line);
     removeCharFromString('\n', line2);
@@ -20,4 +20,5 @@ void parse_line(char* line, struct word* lineList){
     for (int i = 0; i < 2; i++){
         printf("lineList[%d].str : %s\n", i, lineList[i].str);
     }
+    return i;
 }

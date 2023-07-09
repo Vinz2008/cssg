@@ -84,7 +84,7 @@ void insert_in_default_template(char* filename, struct config_file* config, char
 	while (fgets(line, 1024, default_file) != NULL){
 		if (startswith("!?CSSG", line)){
             lineList = malloc(30 * sizeof(struct word));
-            parse_line(line, lineList);
+            int lineListSize = parse_line(line, lineList);
 			if (strcmp(lineList[1].str, "CONTENT") == 0){
 				printf("CONTENT\n");
 				char line2[1024];
@@ -106,6 +106,9 @@ void insert_in_default_template(char* filename, struct config_file* config, char
 				fclose(temp);
 				free(temp_path);
 			}
+            for (int i = 0; i < lineListSize; i++){
+                free(lineList[i].str);
+            }
 			free(lineList);
 		} else {
 			printf("line [default] : %s\n", line);

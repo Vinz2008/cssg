@@ -92,6 +92,9 @@ int main(int argc, char **argv){
         exit(1);
     }
     empty_config_list(root_parameter_file);
+    if (alias_file){
+        empty_config_list(alias_file);
+    }
     free(root_parameter_file);
     free(config);
     return 0;
