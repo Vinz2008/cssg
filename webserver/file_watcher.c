@@ -141,6 +141,7 @@ void* file_watcher(void* arg){
     char* src_folder = (char*)arg;
     struct FileList* filelist /*= createFileList()*/;
     printf("test hello from file watcher\n");
+    rebuild_folder();
     filelist = getFileList("./articles"); // change to list of folders so it can search in multiple folders
     for (int i = 0; i < filelist->length; i++){
         printf("file %d : %s with mtime %ld\n", i, filelist->list[i].path, filelist->list[i].mtime);
