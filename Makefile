@@ -25,7 +25,7 @@ run:
 	cd example && ../cssg build
 
 serve:
-	cd example && ../cssg serve out
+	cd example && ../cssg serve
 
 install: cssg
 	install -d $(DESTDIR)$(PREFIX)/bin/

@@ -75,11 +75,12 @@ int main(int argc, char **argv){
         clean(root_parameter_file);
     } else if (strcmp(argv[1], "serve") == 0){
         char* folder;
-        if (argc < 3){
+        folder = out_directory;
+        /*if (argc < 3){
             folder = ".";
         } else {
             folder = argv[2];
-        }
+        }*/
 #ifdef _WIN32
     printf("webserver is not implemented in windows for now\n");
     exit(1);
