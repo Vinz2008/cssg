@@ -102,7 +102,7 @@ void insert_in_default_template(char* filename, struct config_file* config, char
 					printf("line %s : %s\n", temp_path, line3);
 					fprintf(out, "%s", line3);
 				}
-                fprintf(out, "\n", line3);
+                fprintf(out, "\n");
 				printf("TEST2\n");
 				fclose(temp);
 				free(temp_path);
