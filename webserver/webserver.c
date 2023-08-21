@@ -39,8 +39,6 @@
 #define PORT 8084
 #define BUFFER_SIZE 10000
 
-#define FILE_DETECTION_LIBMAGIC_IMPL 1
-
 #include <magic.h>
 
 
@@ -103,7 +101,6 @@ char* get_filetype_from_filename(char* filename){
     //magic_close(m);
     return filetype;
 }
-#if FILE_DETECTION_LIBMAGIC_IMPL
 
 bool is_file_binary(char* filename){
     char* filetype = get_filetype_from_filename(filename);
@@ -111,104 +108,13 @@ bool is_file_binary(char* filename){
     return !startswith("text/", filetype);
 }
 
-#else
-
-bool is_file_binary(char* file_extension){
-    if (strcmp(file_extension, ".png") == 0 || strcmp(file_extension, ".jpg") == 0 || strcmp(file_extension, ".jpeg") == 0 || strcmp(file_extension, ".webp") == 0 || strcmp(file_extension, ".ico") == 0 || strcmp(file_extension, ".gif") == 0 || strcmp(file_extension, ".aac") == 0 || strcmp(file_extension, ".weba") == 0 || strcmp(file_extension, ".avi") == 0 || strcmp(file_extension, ".ts") == 0 || strcmp(file_extension, ".webm") == 0){
-        return true;
-    }
-    if (strcmp(file_extension, ".html") == 0 || strcmp(file_extension, ".htm") == 0 || strcmp(file_extension, ".txt") == 0 || strcmp(file_extension, ".css") == 0 || strcmp(file_extension, ".js") == 0 || strcmp(file_extension, ".mjs") == 0 || strcmp(file_extension, ".json") == 0){
-        return false;
-    }
-    return false;
-}
-
-char* get_general_filetype_from_file_extension(char* file_extension){
-    if (strcmp(file_extension, ".png") == 0 || strcmp(file_extension, ".jpg") == 0 || strcmp(file_extension, ".jpeg") == 0 || strcmp(file_extension, ".webp") == 0 || strcmp(file_extension, ".ico") == 0 || strcmp(file_extension, ".gif") == 0){
-        return "image";
-    }
-    if (strcmp(file_extension, ".html") == 0 || strcmp(file_extension, ".htm") == 0 || strcmp(file_extension, ".txt") == 0 || strcmp(file_extension, ".css") == 0 || strcmp(file_extension, ".js") == 0 || strcmp(file_extension, ".mjs") == 0 || strcmp(file_extension, ".json") == 0){
-        return "text";
-    }
-    if (strcmp(file_extension, ".aac") == 0 || strcmp(file_extension, ".weba") == 0){
-        return "audio";
-    }
-    if (strcmp(file_extension, ".avi") == 0 || strcmp(file_extension, ".ts") == 0 || strcmp(file_extension, ".webm") == 0){
-        return "video";
-    }
-    return "text";
-}
-
-char* get_filetype_from_file_extension(char* file_extension){
-    if (strcmp(file_extension, ".png") == 0){
-        return "png";
-    }
-    if (strcmp(file_extension, ".jpg") == 0 || strcmp(file_extension, ".jpeg") == 0){
-        return "jpg";
-    }
-    if (strcmp(file_extension, ".webp") == 0){
-        return "webp";
-    }
-    if (strcmp(file_extension, ".ico") == 0){
-        return "vnd.microsoft.icon";
-    }
-    if (strcmp(file_extension, ".txt") == 0){
-        return "plain";
-    }
-    if (strcmp(file_extension, ".html") == 0 || strcmp(file_extension, ".htm") == 0){
-        return "html";
-    }
-    if (strcmp(file_extension, ".css") == 0){
-        return "css";
-    }
-    if (strcmp(file_extension, ".js") == 0 || strcmp(file_extension, ".mjs") == 0){
-        return "javascript";
-    }
-    if (strcmp(file_extension, ".json") == 0){
-        return "json";
-    }
-    if (strcmp(file_extension, ".aac") == 0){
-        return "aac";
-    }
-    if (strcmp(file_extension, ".avi") == 0){
-        return "x-msvideo";
-    }
-    if (strcmp(file_extension, ".gif") == 0){
-        return "gif";
-    }
-    if (strcmp(file_extension, ".ts") == 0){
-        return "mp2t";
-    }
-    if (strcmp(file_extension, ".webm") == 0){
-        return "webm";
-    }
-    if (strcmp(file_extension, ".weba") == 0){
-        return "webm";
-    }
-    if (strcmp(file_extension, ".bin") == 0){
-        return "octet-stream";
-    }
-
-    return "html";
-}
-
-#endif
-
 struct FileContent* get_file_content(char* filename){
     char* buffer;
     char* file_extension = get_file_extension(filename);
-#if FILE_DETECTION_LIBMAGIC_IMPL
     bool is_file_binary_bool = is_file_binary(filename);
-#else
-    bool is_file_binary_bool = is_file_binary(file_extension);
-#endif
     printf("file extension : %s\n", file_extension);
     char* mode = "r";
-#if FILE_DETECTION_LIBMAGIC_IMPL
     if (is_file_binary(filename)){
-#else
-    if (is_file_binary(file_extension)){
-#endif
         mode = "rb";
     }
     FILE* f = fopen(filename, mode);
@@ -219,8 +125,6 @@ struct FileContent* get_file_content(char* filename){
     long length = ftell(f);
     rewind(f);
     printf("length : %ld\n", length);
-    
-#if FILE_DETECTION_LIBMAGIC_IMPL
     char* http_header_not_formatted = "HTTP/1.0 200 OK\nServer: webserver-c\nContent-type: %s\n\n";
     char* file_type = get_filetype_from_filename(filename);
     printf("mime libmagic : %s\n", get_filetype_from_filename(filename));
@@ -229,18 +133,6 @@ struct FileContent* get_file_content(char* filename){
         error_webserver("malloc\n");
     }
     sprintf(http_header, http_header_not_formatted, file_type);
-#else
-    char* http_header_not_formatted = "HTTP/1.0 200 OK\nServer: webserver-c\nContent-type: %s/%s\n\n";
-    char* general_file_type = get_general_filetype_from_file_extension(file_extension);
-    char* file_type = get_filetype_from_file_extension(file_extension);
-    printf("mime libmagic : %s\n", get_filetype_from_filename(filename));
-    //char* http_header = "HTTP/1.0 200 OK\nServer: webserver-c\nContent-type: text/html\n\n";
-    char* http_header = malloc((strlen(http_header_not_formatted) + strlen(file_type)) * sizeof(char));
-    if (!http_header){
-        error_webserver("malloc\n");
-    }
-    sprintf(http_header, http_header_not_formatted, general_file_type, file_type);
-#endif
     buffer = malloc(sizeof(char) * (length + strlen(http_header) + 1));
     strcpy(buffer, http_header);
     if (is_file_binary_bool){
