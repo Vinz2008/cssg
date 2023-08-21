@@ -1,23 +1,18 @@
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "startswith.h"
 
 int startswith(char strStartingWith[], char code[]) {
     int similarity = 0;
-    int length = strlen(strStartingWith);
-    /*printf("length : %i\n", length);*/
-    int i;
-    for (i = 0; i < length/*-1*/; i++){
+    int len = strlen(strStartingWith);
+    for (int i = 0; i < len; i++){
         if (strStartingWith[i] == code[i]){
             similarity++;
         }
     }
-    /*similarity++;*/
-    /*printf("similarity %i\n", similarity);*/
-    if (similarity >= length){
-        return 1;
+    if (similarity >= len){
+        return true;
     }
-    else {
-        return 0;
-    }
+    return false;
 }

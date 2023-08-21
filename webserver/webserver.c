@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -33,9 +34,15 @@
 #include "http_header.h"
 #include "file_watcher.h"
 #include "../libs/utils_file.h"
+#include "../libs/startswith.h"
 
 #define PORT 8084
-#define BUFFER_SIZE 5000
+#define BUFFER_SIZE 10000
+
+#define FILE_DETECTION_LIBMAGIC_IMPL 1
+
+#include <magic.h>
+
 
 struct FileContent {
     bool is_binary;
@@ -44,7 +51,12 @@ struct FileContent {
 };
 
 void error_webserver(const char* s){
-    fprintf(stdout, "(webserver) %s\n errno : %s\n", s, strerror(errno));
+    fprintf(stderr, "(webserver) %s\n errno : %s\n", s, strerror(errno));
+    exit(1);
+}
+
+void error_file_detection(const char* s){
+    fprintf(stderr, "(webserver) error in file detection : %s\n", s);
     exit(1);
 }
 
@@ -73,6 +85,33 @@ char* get_file_extension(char* filename){
     }
     return temp;
 }
+
+char* get_filetype_from_filename(char* filename){
+    magic_t m = magic_open(MAGIC_MIME_TYPE);
+    if (magic_errno(m) > 0){
+        error_file_detection(magic_error(m));
+    }
+    magic_load(m, NULL);
+    if (magic_errno(m) > 0){
+        error_file_detection(magic_error(m));
+    }
+    char* filetype = magic_file(m, filename);
+    if (magic_errno(m) > 0){
+        error_file_detection(magic_error(m));
+    }
+    printf("filetype : %s\n", filetype);
+    //magic_close(m);
+    return filetype;
+}
+#if FILE_DETECTION_LIBMAGIC_IMPL
+
+bool is_file_binary(char* filename){
+    char* filetype = get_filetype_from_filename(filename);
+    printf("ISFILEBIN filetype: %s, startswith text/ bool : %d\n", filetype,startswith("text/", filetype));
+    return !startswith("text/", filetype);
+}
+
+#else
 
 bool is_file_binary(char* file_extension){
     if (strcmp(file_extension, ".png") == 0 || strcmp(file_extension, ".jpg") == 0 || strcmp(file_extension, ".jpeg") == 0 || strcmp(file_extension, ".webp") == 0 || strcmp(file_extension, ".ico") == 0 || strcmp(file_extension, ".gif") == 0 || strcmp(file_extension, ".aac") == 0 || strcmp(file_extension, ".weba") == 0 || strcmp(file_extension, ".avi") == 0 || strcmp(file_extension, ".ts") == 0 || strcmp(file_extension, ".webm") == 0){
@@ -153,13 +192,23 @@ char* get_filetype_from_file_extension(char* file_extension){
     return "html";
 }
 
+#endif
+
 struct FileContent* get_file_content(char* filename){
     char* buffer;
     char* file_extension = get_file_extension(filename);
+#if FILE_DETECTION_LIBMAGIC_IMPL
+    bool is_file_binary_bool = is_file_binary(filename);
+#else
     bool is_file_binary_bool = is_file_binary(file_extension);
+#endif
     printf("file extension : %s\n", file_extension);
     char* mode = "r";
+#if FILE_DETECTION_LIBMAGIC_IMPL
+    if (is_file_binary(filename)){
+#else
     if (is_file_binary(file_extension)){
+#endif
         mode = "rb";
     }
     FILE* f = fopen(filename, mode);
@@ -170,19 +219,33 @@ struct FileContent* get_file_content(char* filename){
     long length = ftell(f);
     rewind(f);
     printf("length : %ld\n", length);
+    
+#if FILE_DETECTION_LIBMAGIC_IMPL
+    char* http_header_not_formatted = "HTTP/1.0 200 OK\nServer: webserver-c\nContent-type: %s\n\n";
+    char* file_type = get_filetype_from_filename(filename);
+    printf("mime libmagic : %s\n", get_filetype_from_filename(filename));
+    char* http_header = malloc((strlen(http_header_not_formatted) + strlen(file_type)) * sizeof(char));
+    if (!http_header){
+        error_webserver("malloc\n");
+    }
+    sprintf(http_header, http_header_not_formatted, file_type);
+#else
+    char* http_header_not_formatted = "HTTP/1.0 200 OK\nServer: webserver-c\nContent-type: %s/%s\n\n";
     char* general_file_type = get_general_filetype_from_file_extension(file_extension);
     char* file_type = get_filetype_from_file_extension(file_extension);
-    char* http_header_not_formatted = "HTTP/1.0 200 OK\nServer: webserver-c\nContent-type: %s/%s\n\n";
+    printf("mime libmagic : %s\n", get_filetype_from_filename(filename));
     //char* http_header = "HTTP/1.0 200 OK\nServer: webserver-c\nContent-type: text/html\n\n";
     char* http_header = malloc((strlen(http_header_not_formatted) + strlen(file_type)) * sizeof(char));
     if (!http_header){
-        error_webserver("error webserver : malloc\n");
+        error_webserver("malloc\n");
     }
     sprintf(http_header, http_header_not_formatted, general_file_type, file_type);
+#endif
     buffer = malloc(sizeof(char) * (length + strlen(http_header) + 1));
     strcpy(buffer, http_header);
     if (is_file_binary_bool){
-        int size_read = fread(buffer + strlen(http_header), length + 1, 1, f);
+        //length = length + length/2;
+        int size_read = fread(buffer /*+ strlen(http_header)*/, length + 1, 1, f);
         if (ferror(f)){
             perror("error when reading binary file");
         }
@@ -279,7 +342,7 @@ int webserver(char* folder){
         char* url = get_url_http_header(listenbuff);
         struct http_header* parsed_header = parse_http_header(listenbuff);
         url = parsed_header->url;
-        printf("parsed header : url %s and request type %s\n", parsed_header->url, parsed_header->request_type);
+        printf("parsed header : url %s and request type \n", parsed_header->url/*, parsed_header->request_type*/); // TODO : find why the request type is bugged when it is this pic
         printf("url : %s\n", url);
         printf("strlen url : %ld\n", strlen(url));
         char* path = malloc(sizeof(char) * 1000);

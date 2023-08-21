@@ -37,17 +37,19 @@ int getToken(char* header, struct parsingContext* context){
         context->pos++;
     }
     if (header[context->pos] == '/'){
+        printf("found url token\n");
         context->Url = reset_string(context->Url);
         context->pos++;
         //appendString(header[context->pos], context->Url);
-        while (isalpha(header[context->pos]) || header[context->pos] == '/' || isalnum(header[context->pos]) || header[context->pos] == '.'){
+        while (isalpha(header[context->pos]) || header[context->pos] == '/' || isalnum(header[context->pos]) || header[context->pos] == '.' /*|| header[context->pos] == '_'*/ || header[context->pos] == '-'){
+            printf("header[context->pos] : %c\n",header[context->pos]);
             appendString(header[context->pos], context->Url);
             context->pos++;
         }
         return tok_url;
     }
     if (isalnum(header[context->pos])){
-        printf("first eader[context->pos] : %c\n", header[context->pos]);
+        printf("first header[context->pos] : %c\n", header[context->pos]);
         context->IdentifierStr = reset_string(context->IdentifierStr);
         while (isalpha(header[context->pos])){   
             appendString(header[context->pos], context->IdentifierStr);
@@ -82,6 +84,7 @@ struct http_header* parse_http_header(char* header){
     appendString('\0', context->Url);
     parsed_header->url = strdup(context->Url->pointer);
     printf("parsed_header url length %ld\n", strlen(parsed_header->url));
+    printf("found url : %s\n", parsed_header->url);
     destroyString(context->IdentifierStr);
     destroyString(context->Url);
     free(context);
