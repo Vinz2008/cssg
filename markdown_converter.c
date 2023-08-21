@@ -12,6 +12,8 @@
 #include "libs/startswith.h"
 #include "misc.h"
 
+#define BUF_LINE_SIZE 4096
+
 void convert_markdown_to_html(char* md_path, char* html_path){
 	printf("in path convert to markdown : %s\n", md_path);
 	FILE* in = fopen(md_path, "r");
@@ -61,7 +63,7 @@ void generate_html_files_recursive(char* article_folder, char* html_folder){
 }
 
 void insert_in_default_template(char* filename, struct config_file* config, char* out_path){
-	char line[1024];
+	char line[BUF_LINE_SIZE];
 	FILE* out = fopen(out_path, "w");
 	char* default_filename = malloc(50 * sizeof(char));
 	snprintf(default_filename, 50, "%s/[default].html", config->parameters[find_parameter_pos("templates_directory", config)].value_str);
@@ -81,14 +83,14 @@ void insert_in_default_template(char* filename, struct config_file* config, char
 	printf("default file : %s\n", default_filename);
 	free(default_filename);
 	printf("out file : %s\n", out_path);
-	while (fgets(line, 1024, default_file) != NULL){
+	while (fgets(line, BUF_LINE_SIZE, default_file) != NULL){
 		if (startswith("!?CSSG", line)){
             lineList = malloc(30 * sizeof(struct word));
             int lineListSize = parse_line(line, lineList);
 			if (strcmp(lineList[1].str, "CONTENT") == 0){
 				printf("CONTENT\n");
-				char line2[1024];
-				while (fgets(line2, 1024, in) != NULL){
+				char line2[BUF_LINE_SIZE];
+				while (fgets(line2, BUF_LINE_SIZE, in) != NULL){
 					fprintf(out, "%s\n", line2);
 				}
 			} else {
@@ -96,9 +98,9 @@ void insert_in_default_template(char* filename, struct config_file* config, char
 				snprintf(temp_path, 40, "%s/%s.html", config->parameters[find_parameter_pos("templates_directory", config)].value_str , lineList[1].str);
 				printf("temp_path : %s\n", temp_path);
 				temp = fopen(temp_path, "r");
-				char line3[1024];
+				char line3[BUF_LINE_SIZE];
 				printf("TEST\n");
-				while (fgets(line3, 1024, temp) != NULL){
+				while (fgets(line3, BUF_LINE_SIZE, temp) != NULL){
 					printf("line %s : %s\n", temp_path, line3);
 					fprintf(out, "%s", line3);
 				}

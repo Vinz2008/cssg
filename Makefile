@@ -17,7 +17,7 @@ OBJS = $(patsubst %.c,%.o,$(SRCS))
 all: clean cssg
 
 cssg: $(OBJS)
-	$(CC) $(LDFLAGS) -o $@ $^
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 %.o:%.c
 	$(CC) $(CFLAGS) -o $@ $^

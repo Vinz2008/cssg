@@ -13,15 +13,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: update packages
+      run: sudo apt update
     - name: install dependencies
-      run: sudo apt-get install libmarkdown2 libmarkdown2-dev discount
+      run: sudo apt install libmarkdown2 libmarkdown2-dev discount libmagic-dev
     - name: make
       run: make
     - name: make run
       run: make run
     - name: deploy to github pages
       uses: peaceiris/actions-gh-pages@v3
-      if: ${{ github.ref == 'refs/heads/main' }}
+      #if: ${{ github.ref == 'refs/heads/main' }}
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./example/out
