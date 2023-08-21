@@ -1,11 +1,15 @@
 CC = gcc
 CFLAGS=-Wall -pedantic -O2 -c -g $(shell pkg-config --cflags libmarkdown libmagic)
 LDFLAGS=$(shell pkg-config --libs libmarkdown libmagic)
+RELEASE ?= FALSE
 
 ifeq ($(PREFIX),)
     PREFIX := /usr/local
 endif
 
+ifeq ($(RELEASE),TRUE)
+	LDFLAGS += -s
+endif
 
 SRCS := $(wildcard ./*.c) $(wildcard libs/*.c) $(wildcard webserver/*.c)
 OBJS = $(patsubst %.c,%.o,$(SRCS))
