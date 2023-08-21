@@ -66,7 +66,7 @@ int main(int argc, char **argv){
     generate_html_files_recursive(article_directory , temp_directory);
     insert_generated_html_in_default_template_recursive(temp_directory, out_directory, root_parameter_file);
     char* img_out_directory = malloc(sizeof(char) * 30);
-    snprintf(img_out_directory, 34,"%s/img", out_directory);
+    snprintf(img_out_directory, 35,"%s/img", out_directory);
     printf("img_out_directory after created : %s\n", img_out_directory);
     mkdir(img_out_directory, 0700);
     copy_img_files(img_directory, img_out_directory);
