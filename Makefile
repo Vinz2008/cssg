@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS=-Wall -pedantic -O2 -c -g $(shell pkg-config --cflags libmarkdown libmagic)
+CFLAGS=-Wall -pedantic -c -g $(shell pkg-config --cflags libmarkdown libmagic)
 LDFLAGS=$(shell pkg-config --libs libmarkdown libmagic)
 RELEASE ?= FALSE
 
@@ -9,6 +9,9 @@ endif
 
 ifeq ($(RELEASE),TRUE)
 	LDFLAGS += -s
+	CFLAGS += -O3
+else
+	CFLAGS += -O2
 endif
 
 SRCS := $(wildcard ./*.c) $(wildcard libs/*.c) $(wildcard webserver/*.c)
