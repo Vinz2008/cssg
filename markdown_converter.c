@@ -11,6 +11,7 @@
 #include "libs/utils_file.h"
 #include "libs/startswith.h"
 #include "misc.h"
+#include "config.h"
 
 #define BUF_LINE_SIZE 4096
 
@@ -19,16 +20,17 @@ void convert_markdown_to_html(char* md_path, char* html_path){
 	FILE* in = fopen(md_path, "r");
 	FILE* out = fopen(html_path, "w");
 	int flags = MKD_LATEX | MKD_FENCEDCODE | MKD_AUTOLINK;
-	MMIOT* mmiot = mkd_in(in, flags);
-	markdown(mmiot, out, flags);
+	MMIOT* mmiot = mkd_in(in, &flags);
+	markdown(mmiot, out, &flags);
 	fclose(in);
 	fclose(out);
 }
 
 
 void generate_html_files_recursive(char* article_folder, char* html_folder){
-	char path[1000];
-	memset(path, 0, sizeof(path));
+	//char path[1000];
+	char* path = malloc(sizeof(char) * LINE_NB_MAX);
+    //memset(path, 0, sizeof(path));
     struct dirent *dp;
     DIR *dir = opendir(article_folder);
 	if (!dir){
@@ -41,13 +43,16 @@ void generate_html_files_recursive(char* article_folder, char* html_folder){
             // Construct new path from our base path
 			go_to_folder(folder, article_folder, path);
 			if (is_dir(path)){
-				char temp_html_folder[1000];
-				go_to_folder(folder, html_folder, temp_html_folder);
+				//char temp_html_folder[1000];
+				char* temp_html_folder = malloc(sizeof(char) * LINE_NB_MAX);
+                go_to_folder(folder, html_folder, temp_html_folder);
 				mkdir_if_not_exist(temp_html_folder);
             	generate_html_files_recursive(path, temp_html_folder);
-			} else {
-				char html_path[1000];
-				memset(html_path, 0, sizeof(html_path));
+                free(temp_html_folder);
+            } else {
+				//char html_path[1000];
+				char* html_path = malloc(sizeof(char) * LINE_NB_MAX);
+                //memset(html_path, 0, sizeof(html_path));
 				char* name_extension_removed = remove_file_extension(folder);
 				printf("file extension removed %s\n", name_extension_removed);
 				go_to_folder(name_extension_removed, html_folder, html_path);
@@ -56,9 +61,11 @@ void generate_html_files_recursive(char* article_folder, char* html_folder){
 				printf("out : %s\n", html_path);
 				printf("in : %s\n", path);
 				convert_markdown_to_html(path, html_path);
+                free(html_path);
 			}
         }
     }
+    free(path);
     closedir(dir);
 }
 
@@ -125,8 +132,9 @@ void insert_in_default_template(char* filename, struct config_file* config, char
 }
 
 void insert_generated_html_in_default_template_recursive(char* temp_folder, char* html_folder, struct config_file* config){
-	char path[1000];
-	memset(path, 0, sizeof(path));
+	//char path[1000];
+	char* path = malloc(sizeof(char) * LINE_NB_MAX);
+    //memset(path, 0, sizeof(path));
     struct dirent *dp;
     DIR *dir = opendir(temp_folder);
 	if (!dir){
@@ -139,23 +147,28 @@ void insert_generated_html_in_default_template_recursive(char* temp_folder, char
             // Construct new path from our base path
 			go_to_folder(folder, temp_folder, path);
 			if (is_dir(path)){
-				char temp_html_folder[1000];
-				go_to_folder(folder, html_folder, temp_html_folder);
+				//char temp_html_folder[1000];
+				char* temp_html_folder = malloc(sizeof(char) * LINE_NB_MAX);
+                go_to_folder(folder, html_folder, temp_html_folder);
 				mkdir_if_not_exist(temp_html_folder);
             	insert_generated_html_in_default_template_recursive(path ,temp_html_folder, config);
-			} else {
+                free(temp_html_folder);
+            } else {
 				char* name_extension_removed = remove_file_extension(folder);
 				printf("file extension removed %s\n", name_extension_removed);
-				char html_path[1000];
-				memset(html_path, 0, sizeof(html_path));
+				//char html_path[1000];
+				char* html_path = malloc(sizeof(char) * LINE_NB_MAX);
+                //memset(html_path, 0, sizeof(html_path));
 				go_to_folder(name_extension_removed, html_folder, html_path);
 				strcat(html_path, ".html");
 				printf("out : %s\n", html_path);
 				insert_in_default_template(path,  config, html_path);
 				free(name_extension_removed);
+                free(html_path);
 			}
         }
     }
+    free(path);
     closedir(dir);
 }
 

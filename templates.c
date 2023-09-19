@@ -11,6 +11,7 @@
 #include "libs/startswith.h"
 #include "libs/utils_file.h"
 #include "misc.h"
+#include "config.h"
 
 #ifdef _WIN32
 #include "windows.h"
@@ -71,8 +72,9 @@ struct line_array* Line_array;
 
 
 void get_file_array(char* directory, char* html_folder){
-    char path[1000];
-	memset(path, 0, sizeof(path));
+    //char path[1000];
+	char* path = malloc(sizeof(char) * LINE_NB_MAX);
+    //memset(path, 0, sizeof(path));
     printf("recurse_nb = %d\n", recurse_nb);
     if (recurse_nb == 0){
         temp_file_array = malloc(sizeof(struct file_array));
@@ -90,7 +92,8 @@ void get_file_array(char* directory, char* html_folder){
             go_to_folder(folder, directory, path);
             printf("path test : %s\n", path);
 			if (is_dir(path)){
-                char temp_html_folder[1000];
+                //char temp_html_folder[1000];
+                char* temp_html_folder = malloc(sizeof(char) * LINE_NB_MAX);
                 go_to_folder(folder, html_folder, temp_html_folder);
                 printf("name search file array %s\n", folder);
                 printf("temp_file_array->used : %ld\n", temp_file_array->used);
@@ -99,6 +102,7 @@ void get_file_array(char* directory, char* html_folder){
                 //mkdir_if_not_exist(temp_html_folder);
                 recurse_nb++;
                 get_file_array(path, temp_html_folder);
+                free(temp_html_folder);
 			} else {
                 struct file* temp_file = malloc(sizeof(struct file));
 				printf("path for file array : %s\n", path);
@@ -121,6 +125,7 @@ void get_file_array(char* directory, char* html_folder){
             // Construct new path from our base path
         }
     }
+    free(path);
     closedir(dir);
     recurse_nb = 0;
 }
@@ -215,7 +220,7 @@ void insert_template(const char* html_file, config_t* config){
             printf("CSSGI\n");
             struct word* lineList;
             lineList = malloc(30 * sizeof(struct word));
-            parse_line(line, lineList);
+            int lineListLength = parse_line(line, lineList);
             if (strcmp("FOR", lineList[1].str)==0){
                 printf("FOR\n");
                 for_mode = true;
@@ -226,12 +231,18 @@ void insert_template(const char* html_file, config_t* config){
                 for_mode = false;
                 extract_variable_files(f2, Line_array, config);
                 empty_line_array(Line_array);
+                if (Line_array){
+                    free(Line_array);
+                }
+            }
+            for (int i = 0; i < lineListLength; i++){
+                free(lineList[i].str);
             }
             free(lineList);
         } else if (startswith("!?CSSG", line)){
             struct word* lineList;
             lineList = malloc(30 * sizeof(struct word));
-            parse_line(line, lineList);
+            int lineListLength = parse_line(line, lineList);
             int a = 0;
             printf("lineList[%d] : %s\n", a, lineList[a].str);
             size_t path_length = strlen(lineList[1].str) + strlen(config->templates_directory)  + 1 + strlen(".html") + 1;
@@ -258,6 +269,9 @@ void insert_template(const char* html_file, config_t* config){
                 fprintf(f2, "%s", templine);
             }
             fclose(temp);
+            for (int i = 0; i < lineListLength; i++){
+                free(lineList[i].str);
+            }
             free(lineList);
         } else {
             if (for_mode == true){
