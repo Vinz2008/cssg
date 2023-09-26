@@ -31,4 +31,7 @@ void generate_project(char* project_name){
     char* templates_folder = malloc((strlen(project_name) + strlen(templates_folder_name) + 1) * sizeof(char));
     sprintf(templates_folder, "%s/%s", project_name, templates_folder_name);
     mkdir(templates_folder, 0700);
+    free(cssg_conf_path);
+    free(articles_folder);
+    free(templates_folder);
 }

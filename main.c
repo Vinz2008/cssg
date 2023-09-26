@@ -58,7 +58,7 @@ int main(int argc, char **argv){
     //generate_html_files_recursive("./articles", "./temp");
     printf("article_directory : %s\n", config->articles_directory);
     DIR* dir = opendir(article_directory);
-    if (!dir && ENOENT == errno) {
+    if (!dir || ENOENT == errno) {
         printf("ERROR : directory %s doesn't exist\n", article_directory);
         exit(1);
     }

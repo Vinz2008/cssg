@@ -53,6 +53,8 @@ void rebuild_folder(){
     snprintf(cmd, cmd_size, format, self_path);
     printf("cmd : %s\n", cmd);
     system(cmd);
+    free(cmd);
+    free(self_path);
 }
 
 struct FileList* createFileList(){

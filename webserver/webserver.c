@@ -66,6 +66,8 @@ void open_browser_url(){
     char* cmd = malloc(sizeof(char) * (strlen(url) + strlen(cmd_start) + 1));
     sprintf(cmd, "%s%s", cmd_start, url);
     system(cmd);
+    free(cmd);
+    free(url);
 }
 
 
@@ -154,6 +156,7 @@ struct FileContent* get_file_content(char* filename){
     }
     fclose(f);
     free(file_extension);
+    free(http_header);
     struct FileContent* fileContent = malloc(sizeof(struct FileContent));
     fileContent->buffer = buffer;
     fileContent->is_binary = is_file_binary_bool;
@@ -172,6 +175,7 @@ char* get_url_http_header(char* header){
     }
     pos++;
     if (pos == strlen(header) - 1){
+        free(url);
         return NULL;
     }
     int url_pos = 0;
@@ -231,9 +235,9 @@ int webserver(char* folder){
         memset(listenbuff, 0, BUFFER_SIZE);
         read( connectionfd , listenbuff, BUFFER_SIZE);
         printf("buf : %s\n", listenbuff);
-        char* url = get_url_http_header(listenbuff);
+        //char* url = get_url_http_header(listenbuff); // old implementation
         struct http_header* parsed_header = parse_http_header(listenbuff);
-        url = parsed_header->url;
+        char* url = parsed_header->url;
         printf("parsed header : url %s and request type \n", parsed_header->url/*, parsed_header->request_type*/); // TODO : find why the request type is bugged when it is this pic
         printf("url : %s\n", url);
         printf("strlen url : %ld\n", strlen(url));

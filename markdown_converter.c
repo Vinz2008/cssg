@@ -19,9 +19,14 @@ void convert_markdown_to_html(char* md_path, char* html_path){
 	printf("in path convert to markdown : %s\n", md_path);
 	FILE* in = fopen(md_path, "r");
 	FILE* out = fopen(html_path, "w");
-	int flags = MKD_LATEX | MKD_FENCEDCODE | MKD_AUTOLINK;
-	MMIOT* mmiot = mkd_in(in, &flags);
-	markdown(mmiot, out, &flags);
+    mkd_flag_t* flags = mkd_flags();
+    //mkd_set_flag_bitmap(flags, MKD_LATEX | MKD_FENCEDCODE | MKD_AUTOLINK);
+	mkd_set_flag_num(flags, MKD_LATEX);
+    mkd_set_flag_num(flags, MKD_FENCEDCODE);
+    mkd_set_flag_num(flags, MKD_AUTOLINK);
+    //int flags = MKD_LATEX | MKD_FENCEDCODE | MKD_AUTOLINK;
+	MMIOT* mmiot = mkd_in(in, flags);
+	markdown(mmiot, out, flags);
 	fclose(in);
 	fclose(out);
 }
@@ -34,6 +39,7 @@ void generate_html_files_recursive(char* article_folder, char* html_folder){
     struct dirent *dp;
     DIR *dir = opendir(article_folder);
 	if (!dir){
+        free(path);
 		return;
 	}
 	 while ((dp = readdir(dir)) != NULL){
@@ -138,6 +144,7 @@ void insert_generated_html_in_default_template_recursive(char* temp_folder, char
     struct dirent *dp;
     DIR *dir = opendir(temp_folder);
 	if (!dir){
+        free(path);
 		return;
 	}
 	 while ((dp = readdir(dir)) != NULL){

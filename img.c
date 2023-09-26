@@ -33,6 +33,7 @@ void copy_img_files(const char* img_folder, const char* img_out_folder){
     struct dirent *dp;
     DIR *dir = opendir(img_folder);
 	if (!dir){
+        free(path);
 		return;
 	}
 	 while ((dp = readdir(dir)) != NULL){

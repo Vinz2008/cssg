@@ -83,6 +83,7 @@ void get_file_array(char* directory, char* html_folder){
     struct dirent *dp;
     DIR *dir = opendir(directory);
 	if (!dir){
+        free(path);
 		return;
 	}
 	 while ((dp = readdir(dir)) != NULL){
