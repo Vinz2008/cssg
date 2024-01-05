@@ -17,7 +17,7 @@
 #endif
 
 #include "windows.h"
-#include "../windows.h"
+#include "../src/windows.h"
 
 #ifdef __APPLE__
 #ifndef st_mtime
@@ -30,7 +30,7 @@
 //#include <fcntl.h>
 #include <stdlib.h>
 //#include <assert.h>
-#include "../misc.h"
+#include "../src/misc.h"
 #include "http_header.h"
 #include "file_watcher.h"
 #include "../libs/utils_file.h"
@@ -70,18 +70,21 @@ void open_browser_url(){
     free(url);
 }
 
-
+// get the file extension without the dot
 char* get_file_extension(char* filename){
     bool found_period = false;
     char* temp = malloc(strlen(filename) * sizeof(char));
     memset(temp, 0, strlen(filename));
-    for (int i = 0; i < strlen(filename); i++){
+    int period_pos = -1;
+    for (int i = strlen(filename)-1; i > 0; i--){
         if (filename[i] == '.'){
             found_period = true;
+            period_pos = i;
         }
-        if (found_period){
-            strncat(temp, filename + i, 1);
-        }
+    }
+    if (found_period){
+        //printf("%s + %d : %s\n", filename, period_pos, filename + period_pos + 1);
+        strcpy(temp, filename + period_pos + 1);
     }
     return temp;
 }

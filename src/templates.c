@@ -6,10 +6,11 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <mkdio.h>
 #include "parser.h"
 #include "parser_config.h"
-#include "libs/startswith.h"
-#include "libs/utils_file.h"
+#include "../libs/startswith.h"
+#include "../libs/utils_file.h"
 #include "misc.h"
 #include "config.h"
 
@@ -161,10 +162,24 @@ void extract_variables(FILE* f, char* line, struct file File, config_t* config){
             if (startswith("filename", out) == 1){
                 printf("FILENAME\n");
                 char* filename = File.name;
+                /*FILE* markdown_file_read = fopen(File.path, "r");
+                mkd_flag_t* flags = mkd_flags();
+                mkd_set_flag_num(flags, MKD_LATEX);
+                mkd_set_flag_num(flags, MKD_FENCEDCODE);
+                mkd_set_flag_num(flags, MKD_AUTOLINK);
+                MMIOT* md_doc = mkd_in(markdown_file_read, flags);
+                char* title = mkd_doc_title(md_doc);
+                printf("filename from %% title : %s\n", title);
+                fclose(markdown_file_read);*/
+                char* title = NULL;
+                if (title != NULL){
+                    filename = title;
+                } else {
                 if (config->alias_file != NULL){
                 int pos = find_parameter_pos_no_error(File.name, config->alias_file);
                 if (pos != -1){
                     filename = config->alias_file->parameters[pos].value_str;
+                }
                 }
                 }
                 fprintf(f, "%s", filename);

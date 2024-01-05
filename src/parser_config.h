@@ -3,6 +3,9 @@
 
 #ifndef PARSER_CONFIG_HEADER_
 #define PARSER_CONFIG_HEADER_
+
+#include "syntax-highlighting.h"
+
 struct parameter {
     char* name;
     char* value_str;
@@ -15,13 +18,14 @@ struct config_file {
     size_t size;
 };
 
-typedef struct {
+typedef struct config {
     char* templates_directory;
     char* img_directory;
     char* articles_directory;
     char* temp_directory;
     char* out_directory;
     struct config_file* alias_file;
+    struct syntax_highlighting_config syntax_config;
 } config_t;
 
 int find_parameter_pos(const char* name, struct config_file* config);

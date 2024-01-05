@@ -12,9 +12,9 @@
 #include "markdown_converter.h"
 #include "misc.h"
 #include "project_generator.h"
-#include "libs/utils_file.h"
-#include "libs/startswith.h"
-#include "webserver/webserver.h"
+#include "../libs/utils_file.h"
+#include "../libs/startswith.h"
+#include "../webserver/webserver.h"
 
 #ifdef _WIN32
 #include "windows.h"
@@ -53,6 +53,11 @@ int main(int argc, char **argv){
     config->temp_directory = temp_directory;
     config->templates_directory = templates_directory;
     config->alias_file = alias_file;
+    char* highlighting_theme = "nord";
+    if (find_parameter_pos_no_error("syntax_highlighting_theme", root_parameter_file) != -1){
+        highlighting_theme = root_parameter_file->parameters[find_parameter_pos("syntax_highlighting_theme", root_parameter_file)].value_str;
+    }
+    config->syntax_config.theme = highlighting_theme;
     if (strcmp(argv[1], "build") == 0){
     insert_template("index.html", config);
     //generate_html_files_recursive("./articles", "./temp");
@@ -63,7 +68,7 @@ int main(int argc, char **argv){
         exit(1);
     }
     closedir(dir);
-    generate_html_files_recursive(article_directory , temp_directory);
+    generate_html_files_recursive(article_directory , temp_directory, config);
     insert_generated_html_in_default_template_recursive(temp_directory, out_directory, root_parameter_file);
     char* img_out_directory = malloc(sizeof(char) * 30);
     snprintf(img_out_directory, 35,"%s/img", out_directory);

@@ -6,3 +6,6 @@ int webserver(char* folder);
 #else
 #define SOCKET_TYPE int
 #endif
+
+
+char* get_file_extension(char* filename);

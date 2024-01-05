@@ -14,7 +14,7 @@ else
 	CFLAGS += -O2
 endif
 
-SRCS := $(wildcard ./*.c) $(wildcard libs/*.c) $(wildcard webserver/*.c)
+SRCS := $(wildcard src/*.c) $(wildcard libs/*.c) $(wildcard webserver/*.c)
 OBJS = $(patsubst %.c,%.o,$(SRCS))
 
 all: clean cssg
@@ -26,7 +26,7 @@ cssg: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^
 
 clean:
-	rm -rf cssg ./*.o ./libs/*.o example/temp/* example/out/* ./webserver/*.o
+	rm -rf cssg ./src/*.o ./libs/*.o example/temp/* example/out/* ./webserver/*.o
 
 run:
 	cd example && ../cssg build

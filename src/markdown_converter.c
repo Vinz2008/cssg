@@ -8,14 +8,15 @@
 #include <unistd.h>
 #include "parser_config.h"
 #include "parser.h"
-#include "libs/utils_file.h"
-#include "libs/startswith.h"
+#include "../libs/utils_file.h"
+#include "../libs/startswith.h"
 #include "misc.h"
 #include "config.h"
+#include "syntax-highlighting.h"
 
 #define BUF_LINE_SIZE 4096
 
-void convert_markdown_to_html(char* md_path, char* html_path){
+void convert_markdown_to_html(char* md_path, char* html_path, config_t* config){
 	printf("in path convert to markdown : %s\n", md_path);
 	FILE* in = fopen(md_path, "r");
 	FILE* out = fopen(html_path, "w");
@@ -26,13 +27,14 @@ void convert_markdown_to_html(char* md_path, char* html_path){
     mkd_set_flag_num(flags, MKD_AUTOLINK);
     //int flags = MKD_LATEX | MKD_FENCEDCODE | MKD_AUTOLINK;
 	MMIOT* mmiot = mkd_in(in, flags);
+    init_syntax_highlighting(mmiot, config);
 	markdown(mmiot, out, flags);
 	fclose(in);
 	fclose(out);
 }
 
 
-void generate_html_files_recursive(char* article_folder, char* html_folder){
+void generate_html_files_recursive(char* article_folder, char* html_folder, config_t* config){
 	//char path[1000];
 	char* path = malloc(sizeof(char) * LINE_NB_MAX);
     //memset(path, 0, sizeof(path));
@@ -53,7 +55,7 @@ void generate_html_files_recursive(char* article_folder, char* html_folder){
 				char* temp_html_folder = malloc(sizeof(char) * LINE_NB_MAX);
                 go_to_folder(folder, html_folder, temp_html_folder);
 				mkdir_if_not_exist(temp_html_folder);
-            	generate_html_files_recursive(path, temp_html_folder);
+            	generate_html_files_recursive(path, temp_html_folder, config);
                 free(temp_html_folder);
             } else {
 				//char html_path[1000];
@@ -66,7 +68,7 @@ void generate_html_files_recursive(char* article_folder, char* html_folder){
 				strcat(html_path, ".html");
 				printf("out : %s\n", html_path);
 				printf("in : %s\n", path);
-				convert_markdown_to_html(path, html_path);
+				convert_markdown_to_html(path, html_path, config);
                 free(html_path);
 			}
         }

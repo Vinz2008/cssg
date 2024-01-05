@@ -12,8 +12,9 @@
 #include <libloaderapi.h>
 #endif
 
-#include "../misc.h"
+#include "../src/misc.h"
 #include "../libs/utils_file.h"
+#include "webserver.h"
 
 // will maybe use it if there are more than 2 args
 struct file_watcher_arg {
@@ -129,6 +130,35 @@ struct FileList* getFileList(char* folder){
     return fl;
 }
 
+struct FileList* getFileListNoRecurse(char* current_folder){
+    struct FileList* fl = createFileList();
+    char* path = malloc(sizeof(char) * CUSTOM_PATH_MAX);
+    memset(path, 0, CUSTOM_PATH_MAX);
+    struct dirent *dp;
+    DIR *dir = opendir(current_folder);
+	if (!dir){
+		return NULL;
+	}
+
+    while ((dp = readdir(dir)) != NULL){
+        char* folder = dp->d_name;
+        if (strcmp(folder, ".") != 0 && strcmp(folder, "..") != 0){
+            if (!is_dir(path)){
+                char* file_path = malloc(sizeof(char) * CUSTOM_PATH_MAX);
+                go_to_folder(folder, current_folder, file_path);
+                printf("file path added : %s\n", file_path);
+                struct file temp_file;
+                temp_file.path = file_path;
+                temp_file.mtime = get_mtime(file_path);
+                appendFileList(temp_file, fl);
+            }
+        }
+    }
+    closedir(dir);
+    free(path);
+    return fl;
+}
+
 
 static inline void update_mtime(struct file* f){
     f->mtime = get_mtime(f->path); 
@@ -138,12 +168,26 @@ bool has_file_changed(struct file* f){
     return get_mtime(f->path) > f->mtime;
 }
 
+void append_to_fileList_config_files(struct FileList* filelistToTrack){
+    struct FileList* localFileList = getFileListNoRecurse(".");
+    for (int i = 0; i < localFileList->length; i++){
+        //printf("local files searching config : %s\n", localFileList->list[i].path);
+        //printf("local files file extension searching config : %s\n", get_file_extension(localFileList->list[i].path));
+        if (strcmp(get_file_extension(localFileList->list[i].path), "conf") == 0){
+            printf("found conf file : %s\n", localFileList->list[i].path);
+            appendFileList(localFileList->list[i], filelistToTrack);
+        }
+    }
+    destroyFileList(localFileList);
+}
+
 void* file_watcher(void* arg){
     char* src_folder = (char*)arg;
     struct FileList* filelist /*= createFileList()*/;
     printf("test hello from file watcher\n");
     rebuild_folder();
     filelist = getFileList("./articles"); // change to list of folders so it can search in multiple folders
+    append_to_fileList_config_files(filelist);
     for (int i = 0; i < filelist->length; i++){
         printf("file %d : %s with mtime %ld\n", i, filelist->list[i].path, filelist->list[i].mtime);
     }
@@ -156,7 +200,7 @@ void* file_watcher(void* arg){
                 update_mtime(filelist->list + i);
 
             }
-        }   
+        }
     }
     //return NULL;
 }
