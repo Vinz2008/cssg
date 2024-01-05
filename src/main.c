@@ -20,6 +20,21 @@
 #include "windows.h"
 #endif
 
+extern char* ret_to_free;
+struct config_file* alias_file;
+struct config_file* root_parameter_file;
+config_t* config;
+
+void atexit_main_webserver(){
+    if (alias_file){
+        empty_config_list(alias_file);
+        free(alias_file);
+    }
+    empty_config_list(root_parameter_file);
+    free(root_parameter_file);
+    free(config);
+}
+
 int main(int argc, char **argv){
     if (argc < 2 || strcmp(argv[1], "help") == 0){
         printf("Usage : \n");
@@ -36,17 +51,17 @@ int main(int argc, char **argv){
         generate_project(argv[2]);
         exit(0);
     }
-    struct config_file* alias_file = NULL;
+    alias_file = NULL;
     if (if_file_exists("alias.conf")){
         alias_file = parse_config_file("alias.conf");
     }
-    struct config_file* root_parameter_file =  parse_config_file("cssg.conf");
+    root_parameter_file =  parse_config_file("cssg.conf");
     char* temp_directory = root_parameter_file->parameters[find_parameter_pos("temp_directory", root_parameter_file)].value_str;
     char* article_directory = root_parameter_file->parameters[find_parameter_pos("articles_directory", root_parameter_file)].value_str;
     char* templates_directory = root_parameter_file->parameters[find_parameter_pos("templates_directory", root_parameter_file)].value_str;
     char* out_directory = root_parameter_file->parameters[find_parameter_pos("out_directory", root_parameter_file)].value_str;
     char* img_directory = root_parameter_file->parameters[find_parameter_pos("img_directory", root_parameter_file)].value_str;
-    config_t* config = malloc(sizeof(config_t));
+    config = malloc(sizeof(config_t));
     config->articles_directory = article_directory;
     config->img_directory = img_directory;
     config->out_directory = out_directory;
@@ -69,6 +84,9 @@ int main(int argc, char **argv){
     }
     closedir(dir);
     generate_html_files_recursive(article_directory , temp_directory, config);
+    if (ret_to_free){
+        free(ret_to_free);
+    }
     insert_generated_html_in_default_template_recursive(temp_directory, out_directory, config);
     char* img_out_directory = malloc(sizeof(char) * 30);
     snprintf(img_out_directory, 35,"%s/img", out_directory);
@@ -90,6 +108,7 @@ int main(int argc, char **argv){
     printf("webserver is not implemented in windows for now\n");
     exit(1);
 #else
+        atexit(atexit_main_webserver);
         webserver(folder);
 #endif
     } else {

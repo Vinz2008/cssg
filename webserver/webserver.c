@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#include <string.h>
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -35,18 +36,20 @@
 #include "file_watcher.h"
 #include "../libs/utils_file.h"
 #include "../libs/startswith.h"
+#include "keyboard_watcher.h"
 
 #define PORT 8084
 #define BUFFER_SIZE 10000
 
 #include <magic.h>
 
-
 struct FileContent {
     bool is_binary;
     char* buffer;
     size_t size;
 };
+
+char* startFile = NULL;
 
 void error_webserver(const char* s){
     fprintf(stderr, "(webserver) %s\n errno : %s\n", s, strerror(errno));
@@ -58,6 +61,9 @@ void error_file_detection(const char* s){
     exit(1);
 }
 
+void webserver_memory_cleanup(){
+    free(startFile);
+}
 
 void open_browser_url(){
     char* url = malloc(sizeof(char) * 30);
@@ -89,7 +95,7 @@ char* get_file_extension(char* filename){
     return temp;
 }
 
-const char* get_filetype_from_filename(char* filename){
+char* get_filetype_from_filename(char* filename){
     magic_t m = magic_open(MAGIC_MIME_TYPE);
     if (magic_errno(m) > 0){
         error_file_detection(magic_error(m));
@@ -98,19 +104,22 @@ const char* get_filetype_from_filename(char* filename){
     if (magic_errno(m) > 0){
         error_file_detection(magic_error(m));
     }
-    const char* filetype = magic_file(m, filename);
+    char* filetype = (char*)magic_file(m, filename);
     if (magic_errno(m) > 0){
         error_file_detection(magic_error(m));
     }
     printf("filetype : %s\n", filetype);
+    filetype = strdup(filetype);
     //magic_close(m);
     return filetype;
 }
 
 bool is_file_binary(char* filename){
-    const char* filetype = get_filetype_from_filename(filename);
+    char* filetype = get_filetype_from_filename(filename);
     printf("ISFILEBIN filetype: %s, startswith text/ bool : %d\n", filetype,startswith("text/", (char*)filetype));
-    return !startswith("text/", (char*)filetype);
+    bool ret = !startswith("text/", (char*)filetype);
+    free(filetype);
+    return ret;
 }
 
 struct FileContent* get_file_content(char* filename){
@@ -131,13 +140,14 @@ struct FileContent* get_file_content(char* filename){
     rewind(f);
     printf("length : %ld\n", length);
     char* http_header_not_formatted = "HTTP/1.0 200 OK\nServer: webserver-c\nContent-type: %s\n\n";
-    const char* file_type = get_filetype_from_filename(filename);
-    printf("mime libmagic : %s\n", get_filetype_from_filename(filename));
+    char* file_type = get_filetype_from_filename(filename);
+    printf("mime libmagic : %s\n", file_type);
     char* http_header = malloc((strlen(http_header_not_formatted) + strlen(file_type)) * sizeof(char));
     if (!http_header){
         error_webserver("malloc\n");
     }
     sprintf(http_header, http_header_not_formatted, file_type);
+    free(file_type);
     buffer = malloc(sizeof(char) * (length + strlen(http_header) + 1));
     strcpy(buffer, http_header);
     if (is_file_binary_bool){
@@ -196,9 +206,20 @@ char* get_url_http_header(char* header){
     return url;
 }
 
+
+struct http_header* parsed_header = NULL;
+
+void atexit_webserver(){
+    if (parsed_header){
+    destroy_http_header(parsed_header);
+    }
+}
+
 int webserver(char* folder){
     create_file_watcher(" ");
-    char* startFile = malloc(sizeof(char) * (strlen(folder) + strlen("index.html")));
+    create_keyboard_watcher();
+    atexit(atexit_webserver);
+    startFile = malloc(sizeof(char) * (strlen(folder) + strlen("index.html")));
     go_to_folder("index.html", folder, startFile);
     printf("startfile : %s\n", startFile);
     char listenbuff[BUFFER_SIZE];
@@ -239,7 +260,7 @@ int webserver(char* folder){
         read( connectionfd , listenbuff, BUFFER_SIZE);
         printf("buf : %s\n", listenbuff);
         //char* url = get_url_http_header(listenbuff); // old implementation
-        struct http_header* parsed_header = parse_http_header(listenbuff);
+        parsed_header = parse_http_header(listenbuff);
         char* url = parsed_header->url;
         printf("parsed header : url %s and request type \n", parsed_header->url/*, parsed_header->request_type*/); // TODO : find why the request type is bugged when it is this pic
         printf("url : %s\n", url);
@@ -251,6 +272,7 @@ int webserver(char* folder){
         } else {
             path = startFile;
         }
+        printf("path file : %s\n", path);
         if (!if_file_exists(path)){
             char* error404 = "HTTP/1.0 404 Not Found\r\nContent-Length: 16\r\nConnection: keep-alive\r\n\r\n<a>ERROR 404</a>\r\n\r\n";
             write(connectionfd, error404, strlen(error404));
@@ -258,6 +280,7 @@ int webserver(char* folder){
         if (strcmp(url, "favicon.ico") != 0){
         printf("path : %s\n", path);
         struct FileContent* fileContent = get_file_content(path);
+        //free(path);
         char* buffer = fileContent->buffer;
         size_t size = fileContent->size;
         printf("got file content of %ld length\n", size);
@@ -269,12 +292,17 @@ int webserver(char* folder){
         //resp = get_file_content("out/index.html");
         ssize_t size_sent = write(connectionfd, temp_buffer_ptr, length_to_send);
         printf("sent %ld bytes\n", size_sent);
-        free(buffer);
+        free(fileContent->buffer);
+        free(fileContent);
         }
         }
+        destroy_http_header(parsed_header);
+        parsed_header = NULL;
         close(connectionfd);
     }
 
+    webserver_memory_cleanup();
+    
 #ifdef _WIN32
     WIN32QuitSocket();
     WIN32CloseSocket();

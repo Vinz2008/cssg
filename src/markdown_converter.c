@@ -31,6 +31,7 @@ void convert_markdown_to_html(char* md_path, char* html_path, config_t* config){
 	markdown(mmiot, out, flags);
 	fclose(in);
 	fclose(out);
+    free(flags);
 }
 
 

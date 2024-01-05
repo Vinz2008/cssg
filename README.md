@@ -22,4 +22,5 @@ For now, it uses the [discount](http://www.pell.portland.or.us/~orc/Code/discoun
 - [x] move pictures from img folder to out folder
 - [x] add custom html pages and articles in article folder (find html files and insert templates)
 - [ ] Add header with %title (for now it doesn't work)
-- [ ] Replace use of config_file by config_t in other files than main.c
+- [x] Replace use of config_file by config_t in other files than main.c
+- [ ] Fix memory leaks with cssg serve

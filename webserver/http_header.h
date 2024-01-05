@@ -7,5 +7,6 @@ struct http_header {
 };
 
 struct http_header* parse_http_header(char* header);
+void destroy_http_header(struct http_header* header);
 
 #endif

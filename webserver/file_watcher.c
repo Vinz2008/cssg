@@ -75,6 +75,9 @@ void appendFileList(struct file f, struct FileList* fl){
 }
 
 void destroyFileList(struct FileList* fl){
+    for (int i = 0; i < fl->length; i++){
+        free(fl->list[i].path);
+    }
     free(fl->list);
     free(fl);
 }
@@ -173,7 +176,8 @@ void append_to_fileList_config_files(struct FileList* filelistToTrack){
     for (int i = 0; i < localFileList->length; i++){
         //printf("local files searching config : %s\n", localFileList->list[i].path);
         //printf("local files file extension searching config : %s\n", get_file_extension(localFileList->list[i].path));
-        if (strcmp(get_file_extension(localFileList->list[i].path), "conf") == 0){
+        char* file_extension = get_file_extension(localFileList->list[i].path);
+        if (strcmp(file_extension, "conf") == 0){
             printf("found conf file : %s\n", localFileList->list[i].path);
             appendFileList(localFileList->list[i], filelistToTrack);
         }
@@ -181,9 +185,19 @@ void append_to_fileList_config_files(struct FileList* filelistToTrack){
     destroyFileList(localFileList);
 }
 
+struct FileList* filelist;
+
+void file_watcher_clean_memory(){
+    destroyFileList(filelist);
+}
+
+void atexit_file_watcher(){
+    file_watcher_clean_memory();
+}
+
 void* file_watcher(void* arg){
     //char* src_folder = (char*)arg;
-    struct FileList* filelist /*= createFileList()*/;
+    //struct FileList* filelist /*= createFileList()*/;
     printf("test hello from file watcher\n");
     rebuild_folder();
     filelist = getFileList("./articles"); // change to list of folders so it can search in multiple folders
@@ -191,6 +205,7 @@ void* file_watcher(void* arg){
     for (int i = 0; i < filelist->length; i++){
         printf("file %d : %s with mtime %ld\n", i, filelist->list[i].path, filelist->list[i].mtime);
     }
+    atexit(atexit_file_watcher);
     while(1){
         //printf("watching files\n");
         for (int i = 0; i < filelist->length; i++){
@@ -202,12 +217,13 @@ void* file_watcher(void* arg){
             }
         }
     }
+    file_watcher_clean_memory();
     //return NULL;
 }
 
 void create_file_watcher(char* src_folder){
     pthread_t thr;
-    pthread_create( &thr, NULL, file_watcher, (void*)src_folder);
+    pthread_create(&thr, NULL, file_watcher, (void*)src_folder);
     //pthread_join(thr, NULL);
     pthread_detach(thr);
 }

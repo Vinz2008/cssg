@@ -90,3 +90,9 @@ struct http_header* parse_http_header(char* header){
     free(context);
     return parsed_header;
 }
+
+void destroy_http_header(struct http_header* header){
+    //free(header->request_type);
+    //free(header->url);
+    //free(header);
+}

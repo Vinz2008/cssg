@@ -7,6 +7,8 @@
 bool has_added_script_tag = false;
 char* theme = NULL;
 
+char* ret_to_free = NULL;
+
 char* markdown_code_block_callback(const char* code, const int code_size, void* lang){
     char* script = "";
     char* lang_to_use = "js";
@@ -39,6 +41,7 @@ char* markdown_code_block_callback(const char* code, const int code_size, void* 
     printf("ret : %s\n", ret);
     printf("code lang : %s\n", (char*)lang);
     free(js_code);
+    ret_to_free = ret;
     return ret;
 }
 

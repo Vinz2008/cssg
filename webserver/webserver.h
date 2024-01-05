@@ -9,3 +9,4 @@ int webserver(char* folder);
 
 
 char* get_file_extension(char* filename);
+void webserver_memory_cleanup();
