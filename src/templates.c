@@ -303,7 +303,7 @@ void insert_template(const char* html_file, config_t* config){
                 printf("line after added : %s\n", Line_array->lines[Line_array->used - 1].line);
 
             } else {
-            fprintf(f2, line);
+            fprintf(f2, "%s", line);
             }
         }
     }

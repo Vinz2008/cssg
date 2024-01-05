@@ -77,11 +77,11 @@ void generate_html_files_recursive(char* article_folder, char* html_folder, conf
     closedir(dir);
 }
 
-void insert_in_default_template(char* filename, struct config_file* config, char* out_path){
+void insert_in_default_template(char* filename, config_t* config, char* out_path){
 	char line[BUF_LINE_SIZE];
 	FILE* out = fopen(out_path, "w");
 	char* default_filename = malloc(50 * sizeof(char));
-	snprintf(default_filename, 50, "%s/[default].html", config->parameters[find_parameter_pos("templates_directory", config)].value_str);
+	snprintf(default_filename, 50, "%s/[default].html", config->templates_directory);
 	FILE* default_file = fopen(default_filename, "r");
 	FILE* in = fopen(filename, "r");
 	FILE* temp;
@@ -110,7 +110,7 @@ void insert_in_default_template(char* filename, struct config_file* config, char
 				}
 			} else {
 				char* temp_path = malloc(40 * sizeof(char));
-				snprintf(temp_path, 40, "%s/%s.html", config->parameters[find_parameter_pos("templates_directory", config)].value_str , lineList[1].str);
+				snprintf(temp_path, 40, "%s/%s.html", config->templates_directory, lineList[1].str);
 				printf("temp_path : %s\n", temp_path);
 				temp = fopen(temp_path, "r");
 				char line3[BUF_LINE_SIZE];
@@ -139,7 +139,7 @@ void insert_in_default_template(char* filename, struct config_file* config, char
 
 }
 
-void insert_generated_html_in_default_template_recursive(char* temp_folder, char* html_folder, struct config_file* config){
+void insert_generated_html_in_default_template_recursive(char* temp_folder, char* html_folder, config_t* config){
 	//char path[1000];
 	char* path = malloc(sizeof(char) * LINE_NB_MAX);
     //memset(path, 0, sizeof(path));

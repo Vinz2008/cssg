@@ -65,7 +65,7 @@ void open_browser_url(){
     char* cmd_start = "xdg-open ";
     char* cmd = malloc(sizeof(char) * (strlen(url) + strlen(cmd_start) + 1));
     sprintf(cmd, "%s%s", cmd_start, url);
-    system(cmd);
+    run_command(cmd);
     free(cmd);
     free(url);
 }
@@ -89,7 +89,7 @@ char* get_file_extension(char* filename){
     return temp;
 }
 
-char* get_filetype_from_filename(char* filename){
+const char* get_filetype_from_filename(char* filename){
     magic_t m = magic_open(MAGIC_MIME_TYPE);
     if (magic_errno(m) > 0){
         error_file_detection(magic_error(m));
@@ -98,7 +98,7 @@ char* get_filetype_from_filename(char* filename){
     if (magic_errno(m) > 0){
         error_file_detection(magic_error(m));
     }
-    char* filetype = magic_file(m, filename);
+    const char* filetype = magic_file(m, filename);
     if (magic_errno(m) > 0){
         error_file_detection(magic_error(m));
     }
@@ -108,9 +108,9 @@ char* get_filetype_from_filename(char* filename){
 }
 
 bool is_file_binary(char* filename){
-    char* filetype = get_filetype_from_filename(filename);
-    printf("ISFILEBIN filetype: %s, startswith text/ bool : %d\n", filetype,startswith("text/", filetype));
-    return !startswith("text/", filetype);
+    const char* filetype = get_filetype_from_filename(filename);
+    printf("ISFILEBIN filetype: %s, startswith text/ bool : %d\n", filetype,startswith("text/", (char*)filetype));
+    return !startswith("text/", (char*)filetype);
 }
 
 struct FileContent* get_file_content(char* filename){
@@ -131,7 +131,7 @@ struct FileContent* get_file_content(char* filename){
     rewind(f);
     printf("length : %ld\n", length);
     char* http_header_not_formatted = "HTTP/1.0 200 OK\nServer: webserver-c\nContent-type: %s\n\n";
-    char* file_type = get_filetype_from_filename(filename);
+    const char* file_type = get_filetype_from_filename(filename);
     printf("mime libmagic : %s\n", get_filetype_from_filename(filename));
     char* http_header = malloc((strlen(http_header_not_formatted) + strlen(file_type)) * sizeof(char));
     if (!http_header){

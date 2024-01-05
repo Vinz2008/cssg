@@ -41,18 +41,18 @@ void copy_img_files(const char* img_folder, const char* img_out_folder){
         if (strcmp(folder, ".") != 0 && strcmp(folder, "..") != 0){
             printf("%s\n", folder);
             // Construct new path from our base path
-            go_to_folder(folder, img_folder, path);
+            go_to_folder(folder, (char*)img_folder, path);
 			if (is_dir(path)){
 				//char temp_html_folder[1000];
                 char* temp_html_folder = malloc(sizeof(char) * LINE_NB_MAX);
-                go_to_folder(folder,img_folder,temp_html_folder);
+                go_to_folder(folder, (char*)img_folder,temp_html_folder);
                 mkdir_if_not_exist(temp_html_folder);
             	copy_img_files(path, img_out_folder);
 			} else {
 				//char img_path[1000];
                 char* img_path = malloc(sizeof(char) * LINE_NB_MAX);
 				//memset(img_path, 0, sizeof(img_path));
-                go_to_folder(folder,img_out_folder,img_path);
+                go_to_folder(folder, (char*)img_out_folder,img_path);
 				printf("out : %s\n", img_path);
                 copy_binary_file(path, img_path);
 				free(img_path);

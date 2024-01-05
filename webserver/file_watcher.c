@@ -53,7 +53,7 @@ void rebuild_folder(){
     char* cmd = malloc(cmd_size);
     snprintf(cmd, cmd_size, format, self_path);
     printf("cmd : %s\n", cmd);
-    system(cmd);
+    run_command(cmd);
     free(cmd);
     free(self_path);
 }
@@ -182,7 +182,7 @@ void append_to_fileList_config_files(struct FileList* filelistToTrack){
 }
 
 void* file_watcher(void* arg){
-    char* src_folder = (char*)arg;
+    //char* src_folder = (char*)arg;
     struct FileList* filelist /*= createFileList()*/;
     printf("test hello from file watcher\n");
     rebuild_folder();
