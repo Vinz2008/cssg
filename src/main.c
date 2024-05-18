@@ -144,7 +144,14 @@ int main(int argc, char **argv){
         empty_config_list(alias_file);
         free(alias_file);
     }
+    free(alias_file_path);
+    free(root_file_path);
     free(root_parameter_file);
+    free(config->articles_directory);
+    free(config->img_directory);
+    free(config->out_directory);
+    free(config->temp_directory);
+    free(config->templates_directory);
     free(config);
     return 0;
 }
