@@ -2,6 +2,8 @@
 
 #include "webserver.h"
 
+#include "../src/config.h"
+
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
@@ -66,12 +68,12 @@ void webserver_memory_cleanup(){
 }
 
 void open_browser_url(){
-    char* url = malloc(sizeof(char) * 30);
+    char* url = malloc(sizeof(char) * 100);
     sprintf(url, "localhost:%d", PORT);
     char* cmd_start = "xdg-open ";
     char* cmd = malloc(sizeof(char) * (strlen(url) + strlen(cmd_start) + 1));
     sprintf(cmd, "%s%s", cmd_start, url);
-    run_command(cmd);
+    run_command(cmd, IS_SILENT);
     free(cmd);
     free(url);
 }
@@ -216,10 +218,10 @@ void atexit_webserver(){
 }
 
 int webserver(char* folder){
-    create_file_watcher(" ");
+    create_file_watcher(folder);
     create_keyboard_watcher();
     atexit(atexit_webserver);
-    startFile = malloc(sizeof(char) * (strlen(folder) + strlen("index.html")));
+    startFile = malloc(sizeof(char) * (strlen(folder) + strlen("index.html")+1));
     go_to_folder("index.html", folder, startFile);
     printf("startfile : %s\n", startFile);
     char listenbuff[BUFFER_SIZE];
@@ -257,7 +259,7 @@ int webserver(char* folder){
     for (;;){
         connectionfd = accept(sockfd, NULL, NULL);
         memset(listenbuff, 0, BUFFER_SIZE);
-        read( connectionfd , listenbuff, BUFFER_SIZE);
+        read(connectionfd , listenbuff, BUFFER_SIZE);
         printf("buf : %s\n", listenbuff);
         //char* url = get_url_http_header(listenbuff); // old implementation
         parsed_header = parse_http_header(listenbuff);

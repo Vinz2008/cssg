@@ -1,1 +1,1 @@
-void create_file_watcher(char* src_folder);
+void create_file_watcher(char* folder);

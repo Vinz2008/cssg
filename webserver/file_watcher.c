@@ -1,3 +1,4 @@
+#include "../src/config.h"
 #include <pthread.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -46,14 +47,14 @@ char* get_self_path(){
     return self_path;
 }
 
-void rebuild_folder(){
+void rebuild_folder(char* folder){
     char* self_path = get_self_path();
-    char* format = "%s build";
-    size_t cmd_size = (CUSTOM_PATH_MAX + strlen(format)) * sizeof(char);
+    char* format = "%s build -C %s/..";
+    size_t cmd_size = (CUSTOM_PATH_MAX + strlen(format) + strlen(folder)) * sizeof(char);
     char* cmd = malloc(cmd_size);
-    snprintf(cmd, cmd_size, format, self_path);
+    snprintf(cmd, cmd_size, format, self_path, folder);
     printf("cmd : %s\n", cmd);
-    run_command(cmd);
+    run_command(cmd, IS_SILENT);
     free(cmd);
     free(self_path);
 }
@@ -196,11 +197,12 @@ void atexit_file_watcher(){
 }
 
 void* file_watcher(void* arg){
-    //char* src_folder = (char*)arg;
-    //struct FileList* filelist /*= createFileList()*/;
-    printf("test hello from file watcher\n");
-    rebuild_folder();
-    filelist = getFileList("./articles"); // change to list of folders so it can search in multiple folders
+    //struct file_watcher_arg* file_watcher_arg = arg;
+    char* folder = arg;
+    printf("starting file watcher\n");
+    rebuild_folder(folder);
+    char* articles_folder = get_file_path_in_folder(folder, "articles"); 
+    filelist = getFileList(articles_folder); // change to list of folders so it can search in multiple folders
     append_to_fileList_config_files(filelist);
     for (int i = 0; i < filelist->length; i++){
         printf("file %d : %s with mtime %ld\n", i, filelist->list[i].path, filelist->list[i].mtime);
@@ -211,7 +213,7 @@ void* file_watcher(void* arg){
         for (int i = 0; i < filelist->length; i++){
             if (has_file_changed(filelist->list + i)){
                 printf("file changed %s\n", filelist->list[i].path);
-                rebuild_folder();
+                rebuild_folder(folder);
                 update_mtime(filelist->list + i);
 
             }
@@ -221,9 +223,11 @@ void* file_watcher(void* arg){
     //return NULL;
 }
 
-void create_file_watcher(char* src_folder){
+void create_file_watcher(char* folder){
     pthread_t thr;
-    pthread_create(&thr, NULL, file_watcher, (void*)src_folder);
-    //pthread_join(thr, NULL);
+    /*struct file_watcher_arg arg = (struct file_watcher_arg){
+        .src_folder = folder
+    };*/
+    pthread_create(&thr, NULL, file_watcher, /*&arg*/ folder);
     pthread_detach(thr);
 }

@@ -82,6 +82,10 @@ struct config_file* parse_config_file(char* path){
     config_file_ptr->path = path;
     char* line = malloc(sizeof(char)*100);
     FILE* f = fopen(path, "r");
+    if (!f){
+        printf("ERROR : couldn't open the config file %s\n", path);
+        exit(1);
+    }
     while (fgets(line, 100, f) != NULL){
         struct parameter* temp_param = parse_config_line(line);
         append_parameter_config_list(*temp_param, config_file_ptr);
