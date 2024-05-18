@@ -17,7 +17,7 @@ endif
 SRCS := $(wildcard src/*.c) $(wildcard libs/*.c) $(wildcard webserver/*.c)
 OBJS = $(patsubst %.c,%.o,$(SRCS))
 
-all: clean cssg
+all: cssg
 
 cssg: $(OBJS)
 	$(CC) -o $@ $^ $(LDFLAGS)
