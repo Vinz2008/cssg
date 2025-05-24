@@ -1,10 +1,10 @@
 CC = gcc
 CFLAGS=-Wall -pedantic -c -g $(shell pkg-config --cflags libmarkdown libmagic)
-CFLAGS += -fsanitize=address -fsanitize=undefined
+#CFLAGS += -fsanitize=address -fsanitize=undefined
 
 
 LDFLAGS=$(shell pkg-config --libs libmarkdown libmagic)
-LDFLAGS += -fsanitize=address -fsanitize=undefined
+#LDFLAGS += -fsanitize=address -fsanitize=undefined
 
 RELEASE ?= FALSE
 
@@ -13,10 +13,10 @@ ifeq ($(PREFIX),)
 endif
 
 ifeq ($(RELEASE),TRUE)
-	LDFLAGS += -s
-	CFLAGS += -O3
+	LDFLAGS += -s -flto
+	CFLAGS += -O3 -flto
 else
-	CFLAGS += -O2
+	CFLAGS += -O0
 endif
 
 SRCS := $(wildcard src/*.c) $(wildcard libs/*.c) $(wildcard webserver/*.c)
