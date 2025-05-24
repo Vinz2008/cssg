@@ -28,7 +28,7 @@ void convert_markdown_to_html(char* md_path, char* html_path, config_t* config){
     //int flags = MKD_LATEX | MKD_FENCEDCODE | MKD_AUTOLINK;
 	MMIOT* mmiot = mkd_in(in, flags);
     init_syntax_highlighting(mmiot, config);
-	markdown(mmiot, out, flags);
+	markdown(mmiot, out, flags); // TODO : replace this with mkd_compile and mkd_document
 	fclose(in);
 	fclose(out);
     free(flags);
