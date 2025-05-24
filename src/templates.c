@@ -9,8 +9,8 @@
 #include <mkdio.h>
 #include "parser.h"
 #include "parser_config.h"
-#include "../libs/startswith.h"
-#include "../libs/utils_file.h"
+#include "utils.h"
+#include "utils_file.h"
 #include "misc.h"
 #include "config.h"
 

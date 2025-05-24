@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "../libs/string.h"
+#include "string.h"
 #include "config.h"
 
 int parse_line(char* line, struct word* lineList){

@@ -8,8 +8,8 @@
 #include <unistd.h>
 #include "parser_config.h"
 #include "parser.h"
-#include "../libs/utils_file.h"
-#include "../libs/startswith.h"
+#include "utils_file.h"
+#include "utils.h"
 #include "misc.h"
 #include "config.h"
 #include "syntax-highlighting.h"

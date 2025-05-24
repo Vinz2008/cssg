@@ -12,8 +12,8 @@
 #include "markdown_converter.h"
 #include "misc.h"
 #include "project_generator.h"
-#include "../libs/utils_file.h"
-#include "../libs/startswith.h"
+#include "utils_file.h"
+#include "utils.h"
 #include "../webserver/webserver.h"
 
 #ifdef _WIN32

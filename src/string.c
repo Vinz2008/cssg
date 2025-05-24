@@ -39,10 +39,10 @@ void appendString(char c, struct string* string){
 }
 
 struct string* reset_string(struct string* string){
-    free(string->pointer);
-    string->pointer = malloc(sizeof(char));
+    //free(string->pointer);
+    //string->pointer = malloc(sizeof(char));
+    memset(string->pointer, 0, string->length);
     string->length = 0;
-    string->allocated_size = 0;
     return string;
 }
 

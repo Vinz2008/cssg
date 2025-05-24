@@ -36,8 +36,8 @@
 #include "../src/misc.h"
 #include "http_header.h"
 #include "file_watcher.h"
-#include "../libs/utils_file.h"
-#include "../libs/startswith.h"
+#include "../src/utils_file.h"
+#include "../src/utils.h"
 #include "keyboard_watcher.h"
 
 #define PORT 8084
