@@ -24,3 +24,4 @@ For now, it uses the [discount](http://www.pell.portland.or.us/~orc/Code/discoun
 - [ ] Add header with %title (for now it doesn't work)
 - [x] Replace use of config_file by config_t in other files than main.c
 - [ ] Fix memory leaks with cssg serve
+- [ ] Make webserver async (epoll) to lower cpu usage

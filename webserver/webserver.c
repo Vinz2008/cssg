@@ -221,7 +221,7 @@ int webserver(char* folder){
     create_file_watcher(folder);
     create_keyboard_watcher();
     atexit(atexit_webserver);
-    startFile = malloc(sizeof(char) * (strlen(folder) + strlen("index.html")+1));
+    startFile = malloc(sizeof(char) * (strlen(folder) + strlen("index.html")+2));
     go_to_folder("index.html", folder, startFile);
     printf("startfile : %s\n", startFile);
     char listenbuff[BUFFER_SIZE];

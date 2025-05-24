@@ -226,6 +226,12 @@ void insert_template(const char* html_file, config_t* config){
     mkdir(config->temp_directory, 0700);
     mkdir(config->out_directory, 0700);
     FILE* f = fopen(main_filename, "r");
+    if (!f){
+        fprintf(stderr, "Couldn't open the main file %s\n", main_filename);
+        exit(1);
+    }
+
+
     char* temp_index_path = malloc(50 * sizeof(char));
     snprintf(temp_index_path, 50, "%s/%s", config->out_directory, html_file);
     FILE* f2 = fopen(temp_index_path, "w");

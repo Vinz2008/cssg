@@ -25,7 +25,7 @@ char* markdown_code_block_callback(const char* code, const int code_size, void* 
     size_t js_code_length = strlen(js_code_format) + code_size + strlen(lang_to_use) * 2 + strlen(theme) + 1;
     char* js_code = malloc(js_code_length * sizeof(char));
     snprintf(js_code, js_code_length, js_code_format, code, lang_to_use, theme);
-    char* ret = malloc((strlen(script) + strlen(js_code)) * sizeof(char));
+    char* ret = malloc((strlen(script) + strlen(js_code) + 1) * sizeof(char));
     memset(ret, 0, (strlen(script) + strlen(js_code)));
     //strcpy(ret, code);
     strcat(ret, script);

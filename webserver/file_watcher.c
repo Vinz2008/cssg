@@ -38,9 +38,16 @@ struct FileList {
 };
 
 char* get_self_path(){
-    char* self_path = malloc(sizeof(char) * CUSTOM_PATH_MAX);
+    char* self_path = malloc(sizeof(char) * (CUSTOM_PATH_MAX + 1));
 #ifndef _WIN32
-    readlink("/proc/self/exe", self_path, CUSTOM_PATH_MAX);
+    size_t len = readlink("/proc/self/exe", self_path, CUSTOM_PATH_MAX);
+    if (len != -1){
+        self_path[len] = '\0';
+    } else {
+        fprintf(stderr, "error in finding self path\n");
+        exit(1);
+    }
+    
 #else
     GetModuleFileNameA(NULL, self_path, CUSTOM_PATH_MAX);
 #endif
@@ -181,19 +188,31 @@ void append_to_fileList_config_files(struct FileList* filelistToTrack){
         if (strcmp(file_extension, "conf") == 0){
             printf("found conf file : %s\n", localFileList->list[i].path);
             appendFileList(localFileList->list[i], filelistToTrack);
+        } else {
+            free(localFileList->list[i].path);
         }
     }
-    destroyFileList(localFileList);
+
+    // doesn't call destroyFileList because need to free only the non conf paths
+    free(localFileList->list);
+    free(localFileList);
+    //destroyFileList(localFileList);
 }
 
 struct FileList* filelist;
 
+static bool cleaned_memory = false;
+
 void file_watcher_clean_memory(){
+    cleaned_memory = true;
     destroyFileList(filelist);
 }
 
 void atexit_file_watcher(){
-    file_watcher_clean_memory();
+    if (!cleaned_memory){
+        file_watcher_clean_memory();
+    }
+    
 }
 
 void* file_watcher(void* arg){

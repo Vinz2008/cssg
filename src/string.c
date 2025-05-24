@@ -30,12 +30,13 @@ struct string* createString(char* str){
 }
 
 void appendString(char c, struct string* string){
-    if (string->length == string->allocated_size-1){
+    if (string->length + 1 >= string->allocated_size){
         string->allocated_size += STRING_FACTOR;
         string->pointer = realloc(string->pointer, string->allocated_size * sizeof(char));
-        memset(string->pointer + string->length+1, 0, string->allocated_size-string->length+1);
+        memset(string->pointer + string->length, 0, string->allocated_size-string->length);
     }
-    string->pointer[string->length++] = c; 
+    string->pointer[string->length] = c; 
+    string->length++;
 }
 
 struct string* reset_string(struct string* string){

@@ -1,6 +1,11 @@
 CC = gcc
 CFLAGS=-Wall -pedantic -c -g $(shell pkg-config --cflags libmarkdown libmagic)
+CFLAGS += -fsanitize=address -fsanitize=undefined
+
+
 LDFLAGS=$(shell pkg-config --libs libmarkdown libmagic)
+LDFLAGS += -fsanitize=address -fsanitize=undefined
+
 RELEASE ?= FALSE
 
 ifeq ($(PREFIX),)
